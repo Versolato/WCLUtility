@@ -102,7 +102,7 @@ namespace Negri.Wcl
             {
                 var fetcher = new Fetcher
                 {
-                    ApplicationId = GetApplicationId()
+                    ApplicationId = appId
                 };
                 fetchers.Enqueue(fetcher);
             }
@@ -183,12 +183,14 @@ namespace Negri.Wcl
             var directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             if (!Directory.Exists(directory))
             {
+                Log.Warn("You are using the 'demo' API Key. The application may not work at all! (Not founf the assembly directory)");
                 return "demo";
             }
 
             var file = Path.Combine(directory, "AppId.txt");
             if (!File.Exists(file))
             {
+                Log.Warn($"You are using the 'demo' API Key. The application may not work at all! (File '{file}' does not exists)");
                 return "demo";
             }
             return File.ReadAllText(file, Encoding.UTF8).Trim();
