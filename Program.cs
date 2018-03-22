@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using log4net;
+using Negri.Wcl.Api;
 
 namespace Negri.Wcl
 {
@@ -48,39 +49,38 @@ namespace Negri.Wcl
                 var records = Parse(allLines).ToArray();
                 Log.Info($"{records.Length:N0} records read from file...");
 
+                Log.Info("Checking for basic errors...");
                 var invalids = RunBasicValidations(records);
                 if (invalids > 0)
                 {
-                    Log.Error($"{invalids:N0} records invalidated on the 1st pass.");
+                    Log.Error($"{invalids:N0} records invalidated on the 1st pass (Basic Errors).");
                 }
 
+                Log.Info("Checking for clans errors...");
                 invalids = GetClanIds(records);
                 if (invalids > 0)
                 {
-                    Log.Error($"{invalids:N0} records invalidated on the 2nd pass.");
+                    Log.Error($"{invalids:N0} records invalidated on the 2nd pass (Checking Clans).");
                 }
-                
+
+                Log.Info("Checking for player errors...");
                 invalids = GetPlayerIds(records);
                 if (invalids > 0)
                 {
-                    Log.Error($"{invalids:N0} records invalidated on the 3rd pass.");
+                    Log.Error($"{invalids:N0} records invalidated on the 3rd pass (Checking Users).");
                 }
                 Log.Info($"{records.Count(r => r.IsValid)} valids records");
 
-                var dir = Path.GetDirectoryName(originalFile);
-                var baseName = Path.GetFileName(originalFile);
-                Debug.Assert(dir != null, nameof(dir) + " != null");    
-                var newFile = Path.Combine(dir, $"valid.{baseName}");
-
-                var sb = new StringBuilder();
-                sb.AppendLine(RawRecord.LineHeader);
-                foreach (var r in records)
+                Log.Info("Checking for relational errors...");
+                invalids = CheckRelationalErrors(records);
+                if (invalids > 0)
                 {
-                    sb.AppendLine(r.ToString());
+                    Log.Error($"{invalids:N0} records invalidated on the 4rd pass (Checking Relations).");
                 }
+                Log.Info($"{records.Count(r => r.IsValid)} valids records");
 
-                File.WriteAllText(newFile, sb.ToString(), Encoding.UTF8);
-                Log.Info($"Validated file wrote on '{newFile}'.");
+                Log.Info("Writing output file...");
+                WriteFile(originalFile, records);
 
                 Log.Info("Bye!");
                 return 0;
@@ -90,6 +90,101 @@ namespace Negri.Wcl
                 Log.Fatal("Unhandled Exception", ex);
                 return 1;
             }
+        }
+
+        private static int CheckRelationalErrors(RawRecord[] records)
+        {
+            int invalids = 0;
+            var clans = new Dictionary<long, Clan>();
+
+            // Put players on clans
+            foreach (var r in records.Where(r => r.ClanId.HasValue && r.InGameId.HasValue))
+            {
+                Debug.Assert(r.ClanId != null, "r.ClanId != null");
+                if (!clans.TryGetValue(r.ClanId.Value, out var clan))
+                {
+                    clan = new Clan
+                    {
+                        ClanId = r.ClanId.Value,
+                        Tag = r.TeamName
+                    };
+                    clans.Add(r.ClanId.Value, clan);
+                }
+
+                Debug.Assert(r.InGameId != null, "r.InGameId != null");
+                var added = clan.AddMember(r.InGameId.Value);
+                if (!added)
+                {
+                    // Duplicate registry
+                    r.IsValid = false;
+                    r.InvalidReason = $"The player [{r.InGameName}] was already on the [{r.TeamName}] clan.";
+                    ++invalids;
+                    Log.Error($"Line {r.OriginalLine:0000} is invalid. Reason: {r.InvalidReason}");
+                }
+            }
+
+            // Check the On Last Season Top 32
+            foreach (var r in records.Where(r => r.OnLastSeasonTop32Players.Any() && r.ClanId.HasValue))
+            {
+                Debug.Assert(r.ClanId != null, "r.ClanId != null");
+                if (!clans.TryGetValue(r.ClanId.Value, out var clan))
+                {
+                    // can happen, on already invalid records
+                    continue;
+                }
+
+                foreach (var onLastSeasonTop32Player in r.OnLastSeasonTop32Players)
+                {
+                    if (!clan.HasMember(onLastSeasonTop32Player.Id))
+                    {
+                        r.IsValid = false;
+                        r.InvalidReason = $"The player [{onLastSeasonTop32Player.GamerTag}] was claimed to be on the Last Season top 32, but he is not a member of the [{r.TeamName}] clan.";
+                        ++invalids;
+                        Log.Error($"Line {r.OriginalLine:0000} is invalid. Reason: {r.InvalidReason}");
+                    }
+                }
+            }
+
+            // Check to see if a player went on more than one clan
+            foreach (var r in records.Where(r => r.ClanId.HasValue && r.InGameId.HasValue))
+            {
+                Debug.Assert(r.ClanId != null, "r.ClanId != null");
+                var clan = clans[r.ClanId.Value];
+
+                foreach (var otherClan in clans.Values.Where(c => c.ClanId != clan.ClanId))
+                {
+                    Debug.Assert(r.InGameId != null, "r.InGameId != null");
+                    if (otherClan.HasMember(r.InGameId.Value))
+                    {
+                        r.IsValid = false;
+                        r.InvalidReason = $"The player [{r.InGameName}], member of the [{r.TeamName}] clan, also appears on the clan [{otherClan.Tag}].";
+                        ++invalids;
+                        Log.Error($"Line {r.OriginalLine:0000} is invalid. Reason: {r.InvalidReason}");
+                    }
+                }
+
+            }
+
+
+            return invalids;
+        }
+
+        private static void WriteFile(string originalFile, RawRecord[] records)
+        {
+            var dir = Path.GetDirectoryName(originalFile);
+            var baseName = Path.GetFileName(originalFile);
+            Debug.Assert(dir != null, nameof(dir) + " != null");
+            var newFile = Path.Combine(dir, $"valid.{baseName}");
+
+            var sb = new StringBuilder();
+            sb.AppendLine(RawRecord.LineHeader);
+            foreach (var r in records)
+            {
+                sb.AppendLine(r.ToString());
+            }
+
+            File.WriteAllText(newFile, sb.ToString(), Encoding.UTF8);
+            Log.Info($"Validated file wrote on '{newFile}'.");
         }
 
         private static int GetPlayerIds(RawRecord[] records)
@@ -365,9 +460,9 @@ namespace Negri.Wcl
         {
             var f = Splitter.Split(line);
 
-            if (f.Length != 10)
+            if (f.Length < 10)
             {
-                Log.Warn($"There are {f.Length} fields when the expected was 10");
+                Log.Warn($"There are {f.Length} fields when the expected was at least 10");
                 return null;
             }
 

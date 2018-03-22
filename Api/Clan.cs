@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 
 namespace Negri.Wcl.Api
@@ -9,6 +10,8 @@ namespace Negri.Wcl.Api
     /// </summary>
     public class Clan
     {
+        private HashSet<long> _membersIds = new HashSet<long>();
+
         /// <summary>
         /// Id do Clã (nunca muda)
         /// </summary>
@@ -51,7 +54,33 @@ namespace Negri.Wcl.Api
         public Dictionary<long, Member> Members { get; set; } = new Dictionary<long, Member>();
 
         [JsonProperty("members_ids")]
-        public long[] MembersIds { get; set; } = new long[0];
+        public long[] MembersIds
+        {
+            get => _membersIds?.ToArray() ?? new long[0];
+            set => _membersIds = new HashSet<long>(value ?? new long[0]);
+        }
 
+        /// <summary>
+        /// Add a player id to the clan
+        /// </summary>
+        /// <param name="playerId"></param>
+        /// <returns><c>false</c> if the player was already on the clan</returns>
+        public bool AddMember(long playerId)
+        {
+            if (_membersIds == null)
+            {
+                _membersIds = new HashSet<long>();
+            }
+
+            return _membersIds.Add(playerId);
+        }
+
+        /// <summary>
+        /// <c>True</c> if the clan has this member
+        /// </summary>
+        public bool HasMember(long playerId)
+        {
+            return _membersIds != null && _membersIds.Contains(playerId);
+        }
     }
 }
