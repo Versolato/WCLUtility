@@ -41,6 +41,5 @@ Without this key file on the same directory of the binaries the application will
 ## Path Ahead
 
 * Providing a sample file;
-* Some more validation on the *Players on the top 32 last Season*;
 * Adapting to the WCL 3 file format;
 * Computing WN8, WinRate and Average Tier of the Players and Teams;
