@@ -1,3 +1,4 @@
+
 # WCLUtility
 A utility to help with the [WCL](https://battlefy.com/world-of-tanks-community-league-wcl) - World of Tanks Communit League
 
@@ -36,3 +37,10 @@ The program will write a log file on the path `%LocalAppData%\Negri\WCL\Log`. It
 If you want to compile, just clone and open on Visual Studio (I used VS 2017). You will be missing a small text file called `AppId.txt`. It contains the *Wargaming App Id* that you can create on their [Developer Portal](https://developers.wargaming.net/).
 
 Without this key file on the same directory of the binaries the application will run with the `demo` app id, witch is quite limited.
+
+## Path Ahead
+
+* Providing a sample file;
+* Some more validation on the *Players on the top 32 last Season*;
+* Adapting to the WCL 3 file format;
+* Computing WN8, WinRate and Average Tier of the Players and Teams;
