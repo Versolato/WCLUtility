@@ -42,7 +42,8 @@ Without this key file on the same directory of the binaries the application will
 
 * Team Name;
 * Gamer Tag (inGameName);
-* Country;
+* CheckInAt (?)
+* Team Name (Again!?);
 * Clan Tag;
 * Clan Membership Page Link;
 * Preferred Server;
@@ -51,5 +52,4 @@ Without this key file on the same directory of the binaries the application will
 
 ## Path Ahead
 
-* Providing a sample file;
 * Computing WN8, WinRate and Average Tier of the Players and Teams;
