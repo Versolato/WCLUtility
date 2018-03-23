@@ -38,8 +38,18 @@ If you want to compile, just clone and open on Visual Studio (I used VS 2017). Y
 
 Without this key file on the same directory of the binaries the application will run with the `demo` app id, witch is quite limited.
 
+## WCL3 Fields
+
+* Team Name;
+* Gamer Tag (inGameName);
+* Country;
+* Clan Tag;
+* Clan Membership Page Link;
+* Preferred Server;
+* Alternate Server;
+* Team Contact E-Mail.
+
 ## Path Ahead
 
 * Providing a sample file;
-* Adapting to the WCL 3 file format;
 * Computing WN8, WinRate and Average Tier of the Players and Teams;

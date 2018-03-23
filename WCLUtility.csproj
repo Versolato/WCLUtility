@@ -96,7 +96,7 @@
     <Compile Include="Api\Meta.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RawRecord.cs" />
+    <Compile Include="Record.cs" />
     <Compile Include="Api\ResponseBase.cs" />
   </ItemGroup>
   <ItemGroup>
