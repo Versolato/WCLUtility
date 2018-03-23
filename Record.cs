@@ -23,7 +23,7 @@ namespace Negri.Wcl
         }
 
         public const string LineHeader =
-            "Team Name,Gamer Tag,Country,Clan Tag,Clan Membership Page Link,Team Contact E-Mail,Preferred Server,Alternate Server,Original Line Number,Is Valid,Invalid Reasons,Clan Id,Player Id,Current Clan Id,Current Clan Tag,Player Moment,Preferred Server Code,Alternate Server Code";
+            "Team Name,Gamer Tag,Checked In At,Team Name Again,Clan Tag,Clan Url,Preferred Server,Alternate Server,Contact E-Mail,Original Line Number,Is Valid,Invalid Reasons,Clan Id,Player Id,Current Clan Id,Current Clan Tag,Player Moment,Preferred Server Code,Alternate Server Code";
 
         /// <summary>
         ///     Log
@@ -129,7 +129,7 @@ namespace Negri.Wcl
         /// </summary>
         public bool Validate()
         {
-            if (!string.IsNullOrWhiteSpace(TeamName))
+            if (string.IsNullOrWhiteSpace(TeamName))
             {
                 AddInvalidReason("Team Name (field 1) is empty.");
             }
@@ -143,15 +143,29 @@ namespace Negri.Wcl
                 AddInvalidReason($"Gamer Tag (field 2, '{GamerTag}') is invalid.");
             }
 
-            if (string.IsNullOrEmpty(Country))
+            if (string.IsNullOrEmpty(CheckedInAt))
             {
                 // Is it a problem?
-                Country = string.Empty;
+                CheckedInAt = string.Empty;
+            }
+            else
+            {
+                // How to validade?
+            }
+
+            if (string.IsNullOrEmpty(TeamNameAgain))
+            {
+                // Is it a problem?
+                TeamNameAgain = string.Empty;
+            }
+            else
+            {
+                // How to validade?
             }
 
             if (!string.IsNullOrWhiteSpace(ClanTag) && !ClanTagRegex.IsMatch(ClanTag))
             {
-                AddInvalidReason($"Clan Tag (field 4, '{ClanTag}') is invalid.");
+                AddInvalidReason($"Clan Tag (field 6, '{ClanTag}') is invalid.");
             }
 
             if (!string.IsNullOrWhiteSpace(ClanUrl))
@@ -159,7 +173,7 @@ namespace Negri.Wcl
                 var match = ClanUrlRegex.Match(ClanUrl);
                 if (!match.Success)
                 {
-                    AddInvalidReason($"Clan URL (field 5, '{ClanUrl}') is invalid.");
+                    AddInvalidReason($"Clan URL (field 6, '{ClanUrl}') is invalid.");
                 }
 
                 ClanTagFromUrl = match.Groups["clanTag"].Value.ToUpperInvariant();
@@ -170,7 +184,7 @@ namespace Negri.Wcl
                 var location = ParseServer(PreferredServer);
                 if (location == null)
                 {
-                    AddInvalidReason($"Could not detect the preferred server ('{PreferredServer}') on field 6.");
+                    AddInvalidReason($"Could not detect the preferred server ('{PreferredServer}') on field 7.");
                 }
 
                 PreferredServerLocation = location;
@@ -181,7 +195,7 @@ namespace Negri.Wcl
                 var location = ParseServer(AlternateServer);
                 if (location == null)
                 {
-                    AddInvalidReason($"Could not detect the alternate server on '{AlternateServer}' on field 7");
+                    AddInvalidReason($"Could not detect the alternate server on '{AlternateServer}' on field 8");
                 }
 
                 AlternateServerLocation = location;
@@ -195,7 +209,7 @@ namespace Negri.Wcl
                 }
                 catch (Exception)
                 {
-                    AddInvalidReason($"Team Contact Gamer E-Mail (field 8, '{TeamContactMail}') is invalid.");
+                    AddInvalidReason($"Team Contact Gamer E-Mail (field 9, '{TeamContactMail}') is invalid.");
                 }
             }
 
@@ -303,46 +317,46 @@ namespace Negri.Wcl
             sb.Append(SanitizeToCsv(GamerTag));
             sb.Append(",");
 
-            if (!string.IsNullOrWhiteSpace(Country))
+            if (!string.IsNullOrWhiteSpace(CheckedInAt))
             {
-                sb.Append(SanitizeToCsv(Country));
+                sb.Append(SanitizeToCsv(CheckedInAt));
             }
+            sb.Append(",");
 
+            if (!string.IsNullOrWhiteSpace(TeamNameAgain))
+            {
+                sb.Append(SanitizeToCsv(TeamNameAgain));
+            }
             sb.Append(",");
 
             if (!string.IsNullOrWhiteSpace(ClanTag))
             {
                 sb.Append(SanitizeToCsv(ClanTag));
             }
-
             sb.Append(",");
 
             if (!string.IsNullOrWhiteSpace(ClanUrl))
             {
                 sb.Append(SanitizeToCsv(ClanUrl));
             }
-
             sb.Append(",");
 
             if (!string.IsNullOrWhiteSpace(PreferredServer))
             {
                 sb.Append(SanitizeToCsv(PreferredServer));
             }
-
             sb.Append(",");
 
             if (!string.IsNullOrWhiteSpace(AlternateServer))
             {
                 sb.Append(SanitizeToCsv(AlternateServer));
             }
-
             sb.Append(",");
 
             if (TeamContactMailAddress != null)
             {
                 sb.Append(SanitizeToCsv(TeamContactMailAddress.Address));
             }
-
             sb.Append(",");
 
             // new fields
@@ -357,55 +371,42 @@ namespace Negri.Wcl
             {
                 sb.Append(SanitizeToCsv(InvalidReasons));
             }
-
             sb.Append(",");
 
             if (ClanId.HasValue)
             {
                 sb.Append(ClanId.Value);
             }
-
             sb.Append(",");
 
             if (Player != null)
             {
                 sb.Append(Player.Id);
             }
-
             sb.Append(",");
 
             if (Player?.CurrentClanId != null)
             {
                 sb.Append(Player.CurrentClanId.Value);
             }
-
             sb.Append(",");
 
             if (Player?.CurrentClanTag != null)
             {
                 sb.Append(Player.CurrentClanTag);
             }
-
             sb.Append(",");
 
             if (Player != null)
             {
                 sb.Append(Player.Moment.ToString("yyyy-MM-dd HH:mm:ss"));
             }
-
             sb.Append(",");
 
-            if (PreferredServerLocation != null)
-            {
-                sb.Append(PreferredServerLocation.Value);
-            }
-
+            sb.Append(PreferredServerLocation ?? ServerLocation.NoPreference);
             sb.Append(",");
 
-            if (AlternateServerLocation != null)
-            {
-                sb.Append(AlternateServerLocation.Value);
-            }
+            sb.Append(AlternateServerLocation ?? ServerLocation.NoPreference);
             //sb.Append(",");
 
             return sb.ToString();
@@ -415,9 +416,9 @@ namespace Negri.Wcl
         {
             var f = Splitter.Split(line);
 
-            if (f.Length < 8)
+            if (f.Length < 9)
             {
-                Log.Warn($"There are {f.Length} fields when the expected was at least 8");
+                Log.Warn($"There are {f.Length} fields when the expected was at least 9");
                 return null;
             }
 
@@ -425,12 +426,13 @@ namespace Negri.Wcl
             {
                 TeamName = f[0].Trim().Trim('"').Trim(),
                 GamerTag = f[1].Trim().Trim('"').Trim(),
-                Country = f[2].Trim().Trim('"').Trim(),
-                ClanTag = f[3].Trim().Trim('"').Trim(),
-                ClanUrl = f[4].Trim().Trim('"').Trim(),
-                PreferredServer = f[5].Trim().Trim('"').Trim(),
-                AlternateServer = f[6].Trim().Trim('"').Trim(),
-                TeamContactMail = f[7].Trim().Trim('"').Trim(),
+                CheckedInAt = f[2].Trim().Trim('"').Trim(),
+                TeamNameAgain = f[3].Trim().Trim('"').Trim(),
+                ClanTag = f[4].Trim().Trim('"').Trim().ToUpperInvariant(),
+                ClanUrl = f[5].Trim().Trim('"').Trim(),
+                PreferredServer = f[6].Trim().Trim('"').Trim(),
+                AlternateServer = f[7].Trim().Trim('"').Trim(),
+                TeamContactMail = f[8].Trim().Trim('"').Trim(),
                 OriginalLine = lineNumber
             };
 
@@ -450,9 +452,14 @@ namespace Negri.Wcl
         public string GamerTag { get; set; }
 
         /// <summary>
-        ///     The Team "Country"
+        ///     The moment the player went on the team (?)
         /// </summary>
-        public string Country { get; set; }
+        public string CheckedInAt { get; set; }
+
+        /// <summary>
+        ///     The Team Name (Again!?)
+        /// </summary>
+        public string TeamNameAgain { get; set; }
 
         /// <summary>
         ///     The name of the team
@@ -463,7 +470,7 @@ namespace Negri.Wcl
         ///     URL of the clan on the WG site.
         /// </summary>
         public string ClanUrl { get; set; }
-
+        
         /// <summary>
         ///     The preferred Server
         /// </summary>
