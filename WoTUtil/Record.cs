@@ -12,7 +12,7 @@ namespace Negri.Wcl
     /// <summary>
     ///     A raw record, from chalonge
     /// </summary>
-    internal class Record
+    public class Record
     {
         public enum ServerLocation
         {
