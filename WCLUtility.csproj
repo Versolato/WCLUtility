@@ -133,6 +133,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy $(TargetDir)*.* C:\Users\negri\OneDrive\WoTClans\WCL3\WCLUtility</PostBuildEvent>
+    <PostBuildEvent>copy $(TargetDir)*.* %25OneDrive%25\WoTClans\WCL3\WCLUtility</PostBuildEvent>
   </PropertyGroup>
 </Project>
