@@ -24,11 +24,11 @@ namespace Negri.Wcl
                 if (args == null || args.Length < 2)
                 {
                     Log.Error("Missing arguments!");
-                    Log.Warn("Try\r\nWCLUtility validate Battlefy_master_file.csv");
+                    Log.Warn("Try\r\nWCLUtility Validate Battlefy_master_file.csv");
                     return 2;
                 }
 
-                if (!args[0].Equals("Validade", StringComparison.InvariantCultureIgnoreCase))
+                if (!args[0].Equals("Validate", StringComparison.InvariantCultureIgnoreCase))
                 {
                     Log.Error("Invalid command!");
                     Log.Warn("Try\r\nWCLUtility Validate Battlefy_master_file.csv");
@@ -38,8 +38,7 @@ namespace Negri.Wcl
                 string originalFile = args[1];
                 if (!File.Exists(originalFile))
                 {
-                    Log.Error("File not found!");
-                    Log.Warn($"Could not find the file '{originalFile}'");
+                    Log.Error($"Could not find the file '{originalFile}'");
                     return 4;
                 }
 
