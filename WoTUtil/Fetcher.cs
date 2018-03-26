@@ -53,7 +53,7 @@ namespace Negri.Wcl
                 $"https://{server}/wotx/clans/list/?application_id={ApplicationId}&search={clanTag}&limit=1";
 
             var json =
-                GetContentSync($"FindClan.{clanTag}.json", requestUrl, TimeSpan.FromDays(1), false,
+                GetContent($"FindClan.{clanTag}.json", requestUrl, TimeSpan.FromDays(1), false,
                     Encoding.UTF8).Content;
 
             var response = JsonConvert.DeserializeObject<ClansListResponse>(json);
@@ -103,7 +103,7 @@ namespace Negri.Wcl
             
             string url = $"https://{server}/wotx/account/list/?application_id={ApplicationId}&search={gamerTag}&type=exact";
             var d =
-                GetContentSync($"AccountList.{gamerTag.SanitizeForFileName()}.json", url, TimeSpan.FromDays(7), false, Encoding.UTF8);
+                GetContent($"AccountList.{gamerTag.SanitizeForFileName()}.json", url, TimeSpan.FromDays(7), false, Encoding.UTF8);
 
             var json = d.Content;                   
             var result = JObject.Parse(json);
@@ -141,7 +141,7 @@ namespace Negri.Wcl
             // Find the current clan, if any
             url = $"https://{server}/wotx/clans/accountinfo/?application_id={ApplicationId}&account_id={player.Id}&extra=clan";
             json =
-                GetContentSync($"ClansAccountinfo.{gamerTag}.json", url, TimeSpan.FromHours(2), false, Encoding.UTF8)
+                GetContent($"ClansAccountinfo.{gamerTag}.json", url, TimeSpan.FromHours(2), false, Encoding.UTF8)
                     .Content;
             result = JObject.Parse(json);
             count = (int)result["meta"]["count"];
@@ -179,15 +179,8 @@ namespace Negri.Wcl
 
         #region Infra
 
-        private WebContent GetContentSync(string cacheFileTitle, string url, TimeSpan maxCacheAge, bool noWait,
-            Encoding encoding = null)
-        {
-            var task = GetContent(cacheFileTitle, url, maxCacheAge, noWait, encoding);
-            task.Wait();
-            return task.Result;
-        }
-
-        private async Task<WebContent> GetContent(string cacheFileTitle, string url, TimeSpan maxCacheAge, bool noWait,
+       
+        private WebContent GetContent(string cacheFileTitle, string url, TimeSpan maxCacheAge, bool noWait,
             Encoding encoding = null)
         {
             Log.DebugFormat("Retrieving '{0}' ...", url);
@@ -198,7 +191,7 @@ namespace Negri.Wcl
             if (!File.Exists(cacheFileName))
             {
                 Log.Debug("...never retrieved before...");
-                return await GetContentFromWeb(cacheFileName, url, noWait, encoding);
+                return GetContentFromWeb(cacheFileName, url, noWait, encoding);
             }
 
             var fi = new FileInfo(cacheFileName);
@@ -209,14 +202,14 @@ namespace Negri.Wcl
                 Log.DebugFormat("...file on cache '{0}' from {1:yyyy-MM-dd HH:mm} expired with {2:N0}h...",
                     cacheFileTitle, moment, age.TotalHours);
 
-                return await GetContentFromWeb(cacheFileName, url, noWait, encoding);
+                return GetContentFromWeb(cacheFileName, url, noWait, encoding);
             }
 
             Log.Debug("...got from cache.");
             return new WebContent(File.ReadAllText(cacheFileName, encoding)) {Moment = moment};
         }
 
-        private async Task<WebContent> GetContentFromWeb(string cacheFileName, string url, bool noWait,
+        private WebContent GetContentFromWeb(string cacheFileName, string url, bool noWait,
             Encoding encoding)
         {
             var timeSinceLastFetch = DateTime.UtcNow - _lastWebFetch;
@@ -240,7 +233,7 @@ namespace Negri.Wcl
                     var webClient = new WebClient();
                     webClient.Headers.Add("user-agent",
                         "WCLUtility by JP Negri at negrijp _at_ gmail.com");
-                    var bytes = await webClient.DownloadDataTaskAsync(url);
+                    var bytes = webClient.DownloadData(url);
                     var webTime = sw.ElapsedMilliseconds;
 
                     var content = Encoding.UTF8.GetString(bytes);

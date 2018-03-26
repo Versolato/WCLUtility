@@ -21,6 +21,8 @@ namespace Negri.Wcl
 
         public string AppId { private get; set; }
 
+        public string ResultFile { get; private set; }
+   
         public void Run(string originalFile)
         {
             Log.Info($"Parsing file '{originalFile}'...");
@@ -113,7 +115,7 @@ namespace Negri.Wcl
             return invalids;
         }
 
-        private static void WriteFile(string originalFile, Record[] records)
+        private void WriteFile(string originalFile, Record[] records)
         {
             var dir = Path.GetDirectoryName(originalFile);
             var baseName = Path.GetFileName(originalFile);
@@ -129,6 +131,8 @@ namespace Negri.Wcl
 
             File.WriteAllText(newFile, sb.ToString(), Encoding.UTF8);
             Log.Info($"Validated file wrote on '{newFile}'.");
+
+            ResultFile = newFile;
         }
 
         private int GetPlayerIds(Record[] records)

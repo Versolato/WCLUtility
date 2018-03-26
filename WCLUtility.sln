@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WCLUtility", "WCLUtility.cs
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WoTUtil", "WoTUtil\WoTUtil.csproj", "{32A014D1-ADEF-4D00-8205-11F1FD927523}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WCLUtilityGui", "WCLUtilityGui\WCLUtilityGui.csproj", "{6401F3C0-C180-4205-82B6-7E5BE5DF47A5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{32A014D1-ADEF-4D00-8205-11F1FD927523}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{32A014D1-ADEF-4D00-8205-11F1FD927523}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{32A014D1-ADEF-4D00-8205-11F1FD927523}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6401F3C0-C180-4205-82B6-7E5BE5DF47A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6401F3C0-C180-4205-82B6-7E5BE5DF47A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6401F3C0-C180-4205-82B6-7E5BE5DF47A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6401F3C0-C180-4205-82B6-7E5BE5DF47A5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

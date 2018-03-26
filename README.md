@@ -22,6 +22,15 @@ The output of the program is another CSV, with the data validated, and aditional
 
 ### Er... I mean *how to run* the program!
 
+#### Easy Mode
+
+If you already have the binaries provided by me, just go to the directory where you copied this and click on the program `WCLUtilityGui.exe` (the one with the tank icon), and follow the
+instructions.
+
+The program may take several minutes to run, as it needs to query *a lot* of data over the Internet. So, be patient.
+
+#### Not so Easy Mode
+
 If you already have the binaries provided by me, just go to the directory where you copied this and execute with the command
 
 `WCLUtility Validate "c:\a path\Battlefy_master_file.csv"`
