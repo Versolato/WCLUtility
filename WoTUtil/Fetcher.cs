@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -7,6 +8,7 @@ using System.Text;
 using System.Threading;
 using log4net;
 using Negri.Wot.Api;
+using Negri.Wot.Tanks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -175,10 +177,58 @@ namespace Negri.Wot
             return player;
         }
 
+        /// <summary>
+        /// Retrieve the WN8 Expected Values
+        /// </summary>
+        /// <returns></returns>
+        public Wn8ExpectedValues GetWn8ExpectedValues()
+        {
+            const string requestUrl = "https://wotclans.com.br/api/tanks/wn8";
+            var content = GetContent($"WCL.WN8Expected.json", requestUrl, TimeSpan.FromHours(1), false, Encoding.UTF8);
+            var json = content.Content;
+            var response = JsonConvert.DeserializeObject<Wn8ExpectedValues>(json);
+            return response;
+        }
+
+        /// <summary>
+        ///     Get the tanks of a givem player
+        /// </summary>
+        public IEnumerable<TankPlayer> GetTanksForPlayer(long playerId)
+        {
+            Log.DebugFormat("Obtendo tanques do jogador {0}...", playerId);
+
+            string server = "api-xbox-console.worldoftanks.com";
+            
+            string requestUrl =
+                $"https://{server}/wotx/tanks/stats/?application_id={ApplicationId}&account_id={playerId}";
+            
+            var content = GetContent($"WCL.TanksStats.{playerId}.json", requestUrl, TimeSpan.FromDays(1), false, Encoding.UTF8);
+            var json = content.Content;
+            var response = JsonConvert.DeserializeObject<TanksStatsResponse>(json);
+            if (response.IsError)
+            {
+                Log.Error(response.Error);
+                return Enumerable.Empty<TankPlayer>();
+            }
+
+            var list = new List<TankPlayer>();
+            foreach (var tankPlayers in response.Tanks.Values)
+            {
+                if (tankPlayers != null)
+                {
+                    foreach (var tankPlayer in tankPlayers)
+                    {                        
+                        list.Add(tankPlayer);
+                    }
+                }
+            }
+
+            return list;
+        }
 
         #region Infra
 
-       
+
         private WebContent GetContent(string cacheFileTitle, string url, TimeSpan maxCacheAge, bool noWait,
             Encoding encoding = null)
         {

@@ -58,14 +58,27 @@
     <Compile Include="Api\Error.cs" />
     <Compile Include="Api\Member.cs" />
     <Compile Include="Api\Meta.cs" />
+    <Compile Include="Api\Nation.cs" />
     <Compile Include="Api\Player.cs" />
     <Compile Include="Api\Rank.cs" />
     <Compile Include="Api\ResponseBase.cs" />
+    <Compile Include="Api\TanksStatsResponse.cs" />
+    <Compile Include="Api\TankType.cs" />
     <Compile Include="BasicExtensions.cs" />
     <Compile Include="Fetcher.cs" />
+    <Compile Include="Mathematic\EquationSolver.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RgbColorAttribute.cs" />
+    <Compile Include="Tanks\Tank.cs" />
+    <Compile Include="Tanks\TankPlayer.cs" />
+    <Compile Include="Tanks\TankPlayerStatistics.cs" />
+    <Compile Include="Tanks\TankPlayerWn8Statistics.cs" />
+    <Compile Include="Tanks\Wn8ExpectedValues.cs" />
+    <Compile Include="Tanks\Wn8TankExpectedValues.cs" />
+    <Compile Include="Tanks\Wn8TankExpectedValuesOrigin.cs" />
     <Compile Include="Wcl\Record.cs" />
-    <Compile Include="WclValidator.cs" />
+    <Compile Include="Wcl\WclValidator.cs" />
+    <Compile Include="Wn8Rating.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

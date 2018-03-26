@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net.Mail;
 using System.Text;
@@ -23,7 +24,7 @@ namespace Negri.Wot.Wcl
         }
 
         public const string LineHeader =
-            "Team Name,Gamer Tag,Checked In At,Team Name Again,Clan Tag,Clan Url,Preferred Server,Alternate Server,Contact E-Mail,Original Line Number,Is Valid,Invalid Reasons,Clan Id,Player Id,Current Clan Id,Current Clan Tag,Player Moment,Preferred Server Code,Alternate Server Code";
+            "Team Name,Gamer Tag,Checked In At,Team Name Again,Clan Tag,Clan Url,Preferred Server,Alternate Server,Contact E-Mail,Original Line Number,Is Valid,Invalid Reasons,Clan Id,Player Id,Current Clan Id,Current Clan Tag,Player Moment,Preferred Server Code,Alternate Server Code,Battles,WinRate,AvgTier,Wn8,Tier10Battles,Tier10WinRate,Tier10Wn8,Tier10DirectDamage";
 
         /// <summary>
         ///     Log
@@ -407,7 +408,23 @@ namespace Negri.Wot.Wcl
             sb.Append(",");
 
             sb.Append(AlternateServerLocation ?? ServerLocation.NoPreference);
-            //sb.Append(",");
+            sb.Append(",");
+
+            if (Player == null)
+            {
+                sb.Append(",,,,,,,");
+            }
+            else
+            {
+                sb.Append($"{SanitizeToCsv(Player.Battles.ToString("N0", CultureInfo.InvariantCulture))}," +
+                    $"{SanitizeToCsv(Player.WinRate.ToString("N4", CultureInfo.InvariantCulture))}," +
+                    $"{SanitizeToCsv(Player.AvgTier.ToString("N2", CultureInfo.InvariantCulture))}," +
+                    $"{SanitizeToCsv(Player.Wn8.ToString("N0", CultureInfo.InvariantCulture))}," +
+                    $"{SanitizeToCsv(Player.Tier10Battles.ToString("N0", CultureInfo.InvariantCulture))}," +
+                    $"{SanitizeToCsv(Player.Tier10WinRate.ToString("N4", CultureInfo.InvariantCulture))}," +
+                    $"{SanitizeToCsv(Player.Tier10Wn8.ToString("N0", CultureInfo.InvariantCulture))}," +
+                    $"{SanitizeToCsv(Player.Tier10DirectDamage.ToString("N0", CultureInfo.InvariantCulture))}");
+            }
 
             return sb.ToString();
         }

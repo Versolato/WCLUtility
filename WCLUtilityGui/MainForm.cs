@@ -59,7 +59,8 @@ namespace Negri.Wot.Wcl
 
                 _validator = new WclValidator()
                 {
-                    AppId = GetApplicationId()
+                    AppId = GetApplicationId(),
+                    CalculatePerformance = true
                 };
 
                 _statusTimer.Start();

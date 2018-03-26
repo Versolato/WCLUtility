@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Negri.Wot.Api;
 using System.Collections.Concurrent;
 using System.Threading;
+using Negri.Wot.Tanks;
 
 namespace Negri.Wot.Wcl
 {
@@ -48,6 +49,11 @@ namespace Negri.Wot.Wcl
         /// Current status
         /// </summary>
         public string Status { get; private set; }
+
+        /// <summary>
+        /// The WN8 Expected Values
+        /// </summary>
+        public Wn8ExpectedValues Wn8ExpectedValues { get; private set; }
 
         /// <summary>
         /// If the performance of each player and the clan should be calculated
@@ -108,6 +114,14 @@ namespace Negri.Wot.Wcl
                     SetError($"{invalids:N0} records invalidated on the 2nd pass (Checking Clans).");
                 }
 
+                Progress = 0.45;
+
+                if (CalculatePerformance)
+                {
+                    SetInfo("Retrieving WN8 Reference Values...");
+                    GetWn8ReferenceValues();
+                }
+
                 Progress = 0.50;
 
                 SetInfo("Checking for player errors...");
@@ -144,6 +158,16 @@ namespace Negri.Wot.Wcl
                 Log.Error(nameof(Run), ex);
                 SetError(ex.Message);
             }            
+        }
+
+        private void GetWn8ReferenceValues()
+        {
+            var fetcher = new Fetcher
+            {
+                ApplicationId = AppId
+            };
+
+            Wn8ExpectedValues = fetcher.GetWn8ExpectedValues();
         }
 
         private static int CheckRelationalErrors(Record[] records)
@@ -259,12 +283,11 @@ namespace Negri.Wot.Wcl
                     r.Player = p;
                 }
 
-                if ((p != null) && (CalculatePerformance))
+                if ((p != null) && (Wn8ExpectedValues != null))
                 {
                     // retrieve performance on each tank of the player
-
-                    
-
+                    p.Tanks = fetcher.GetTanksForPlayer(p.Id).ToArray();
+                    p.CalculatePerformance(Wn8ExpectedValues);
                 }
 
                 fetchers.Enqueue(fetcher);
