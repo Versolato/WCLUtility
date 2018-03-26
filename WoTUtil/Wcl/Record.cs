@@ -164,6 +164,11 @@ namespace Negri.Wot.Wcl
                 // How to validade?
             }
 
+            if (string.IsNullOrWhiteSpace(ClanTag) == false)
+            {
+                ClanTag = ClanTag.Trim('[', ']', '{', '}', '<', '>', ' ', '\t');
+            }
+
             if (!string.IsNullOrWhiteSpace(ClanTag) && !ClanTagRegex.IsMatch(ClanTag))
             {
                 AddInvalidReason($"Clan Tag (field 6, '{ClanTag}') is invalid.");
@@ -266,14 +271,29 @@ namespace Negri.Wot.Wcl
                 return ServerLocation.East;
             }
 
-            if (server.Contains("NAE"))
+            if (server.Contains("nae"))
             {
                 return ServerLocation.East;
             }
 
-            if (server.Contains("NAW"))
+            if (server.Contains("восток".ToLower()))
+            {
+                return ServerLocation.East;
+            }
+
+            if (server.Contains("Запад".ToLower()))
             {
                 return ServerLocation.West;
+            }
+
+            if (server.Contains("naw"))
+            {
+                return ServerLocation.West;
+            }
+
+            if (server.Contains("evropa"))
+            {
+                return ServerLocation.Euro;
             }
 
             return null;

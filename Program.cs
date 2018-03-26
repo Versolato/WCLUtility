@@ -46,7 +46,11 @@ namespace Negri.Wot.Wcl
                     AppId = GetApplicationId(),
                     CalculatePerformance = calculatePerformance
                 };
-                validator.Run(originalFile);                
+                if (validator.Run(originalFile) == false)
+                {
+                    Log.Fatal(validator.LastFatalError);
+                    return 10;
+                }
 
                 Log.Info("Bye!");
                 return 0;

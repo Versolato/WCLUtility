@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Negri.Wot
@@ -134,6 +135,15 @@ namespace Negri.Wot
             }
 
             return s.Replace('/', '_').Replace('\\', '_').Replace('?', '_').Replace('*', '_').Replace('!', '_');
+        }
+
+        public static string GetHash(this string Phrase)
+        {
+            SHA512Managed HashTool = new SHA512Managed();
+            Byte[] PhraseAsByte = Encoding.UTF8.GetBytes(string.Concat(Phrase));
+            Byte[] EncryptedBytes = HashTool.ComputeHash(PhraseAsByte);
+            HashTool.Clear();
+            return Convert.ToBase64String(EncryptedBytes).SanitizeForFileName();
         }
 
     }

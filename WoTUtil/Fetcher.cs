@@ -54,7 +54,7 @@ namespace Negri.Wot
                 $"https://{server}/wotx/clans/list/?application_id={ApplicationId}&search={clanTag}&limit=1";
 
             var json =
-                GetContent($"wcl.FindClan.{clanTag}.json", requestUrl, TimeSpan.FromDays(1), false,
+                GetContent($"wcl.FindClan.{clanTag.GetHash()}.json", requestUrl, TimeSpan.FromDays(1), false,
                     Encoding.UTF8).Content;
 
             var response = JsonConvert.DeserializeObject<ClansListResponse>(json);
@@ -104,7 +104,7 @@ namespace Negri.Wot
             
             string url = $"https://{server}/wotx/account/list/?application_id={ApplicationId}&search={gamerTag}&type=exact";
             var d =
-                GetContent($"wcl.AccountList.{gamerTag.SanitizeForFileName()}.json", url, TimeSpan.FromDays(7), false, Encoding.UTF8);
+                GetContent($"wcl.AccountList.{gamerTag.GetHash()}.json", url, TimeSpan.FromDays(7), false, Encoding.UTF8);
 
             var json = d.Content;                   
             var result = JObject.Parse(json);
@@ -142,7 +142,7 @@ namespace Negri.Wot
             // Find the current clan, if any
             url = $"https://{server}/wotx/clans/accountinfo/?application_id={ApplicationId}&account_id={player.Id}&extra=clan";
             json =
-                GetContent($"wcl.ClansAccountinfo.{gamerTag}.json", url, TimeSpan.FromHours(2), false, Encoding.UTF8)
+                GetContent($"wcl.ClansAccountinfo.{gamerTag.GetHash()}.json", url, TimeSpan.FromHours(2), false, Encoding.UTF8)
                     .Content;
             result = JObject.Parse(json);
             count = (int)result["meta"]["count"];

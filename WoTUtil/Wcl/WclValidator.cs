@@ -60,6 +60,11 @@ namespace Negri.Wot.Wcl
         /// </summary>
         public bool CalculatePerformance { private get; set; } = false;
 
+        /// <summary>
+        /// The last fatal error, if any
+        /// </summary>
+        public string LastFatalError { get; private set; }
+
         private void SetInfo(string msg)
         {
             Log.Info(msg);
@@ -78,10 +83,11 @@ namespace Negri.Wot.Wcl
             Status = msg;
         }
 
-        public void Run(string originalFile)
+        public bool Run(string originalFile)
         {
             try
             {
+                LastFatalError = string.Empty;
                 Progress = 0.0;
 
                 SetInfo($"Parsing file '{originalFile}'...");
@@ -92,8 +98,9 @@ namespace Negri.Wot.Wcl
 
                 if (records.Length == 0)
                 {
+                    LastFatalError = "No records where found!"; 
                     SetError("No records where found!");
-                    return;
+                    return false;
                 }
 
                 Progress = 0.10;
@@ -152,12 +159,15 @@ namespace Negri.Wot.Wcl
                 SetInfo("All done!");
 
                 Progress = 1.0;
+                return true;
             }
             catch(Exception ex)
             {
+                LastFatalError = ex.Message;
                 Log.Error(nameof(Run), ex);
                 SetError(ex.Message);
-            }            
+                return false;
+            }
         }
 
         private void GetWn8ReferenceValues()

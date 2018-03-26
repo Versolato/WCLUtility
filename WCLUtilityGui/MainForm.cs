@@ -70,8 +70,17 @@ namespace Negri.Wot.Wcl
                     _statusTimer.Stop();
                     Cursor.Current = Cursors.Default;
                     buttonStart.Invoke(new MethodInvoker(delegate { buttonStart.Enabled = true; }));
-                    SetStatus($"Done! {_validator.ValidRecords:N0} of {_validator.TotalRecords:N0} records are 100% valid.");
-                    progressBar.Invoke(new MethodInvoker(delegate { progressBar.Value = 1000; }));
+
+                    if (t.Result == true)
+                    {
+                        SetStatus($"Done! {_validator.ValidRecords:N0} of {_validator.TotalRecords:N0} records are 100% valid.");
+                        progressBar.Invoke(new MethodInvoker(delegate { progressBar.Value = 1000; }));
+                    }
+                    else
+                    {
+                        SetStatus($"Fatal! See the log for details: {_validator.LastFatalError}");
+                    }
+                    
                     _validator = null;
                 });
                                 
