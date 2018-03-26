@@ -13,7 +13,7 @@ using System.Timers;
 using System.Windows.Forms;
 using Timer = System.Timers.Timer;
 
-namespace Negri.Wcl
+namespace Negri.Wot.Wcl
 {
     public partial class MainForm : Form
     {

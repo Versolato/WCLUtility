@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Negri.Wcl.Api
+namespace Negri.Wot.Api
 {
     /// <summary>
     /// A player

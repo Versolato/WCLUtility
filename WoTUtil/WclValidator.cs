@@ -6,11 +6,11 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Negri.Wcl.Api;
+using Negri.Wot.Api;
 using System.Collections.Concurrent;
 using System.Threading;
 
-namespace Negri.Wcl
+namespace Negri.Wot.Wcl
 {
     public class WclValidator
     {
@@ -48,6 +48,11 @@ namespace Negri.Wcl
         /// Current status
         /// </summary>
         public string Status { get; private set; }
+
+        /// <summary>
+        /// If the performance of each player and the clan should be calculated
+        /// </summary>
+        public bool CalculatePerformance { private get; set; } = false;
 
         private void SetInfo(string msg)
         {
@@ -252,6 +257,14 @@ namespace Negri.Wcl
                 {
                     r.GamerTag = p.GamerTag;
                     r.Player = p;
+                }
+
+                if ((p != null) && (CalculatePerformance))
+                {
+                    // retrieve performance on each tank of the player
+
+                    
+
                 }
 
                 fetchers.Enqueue(fetcher);

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 
-namespace Negri.Wcl
+namespace Negri.Wot
 {
     public static class BasicExtensions
     {

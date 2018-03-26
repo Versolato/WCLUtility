@@ -1,17 +1,10 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using log4net;
-using Negri.Wcl.Api;
 
-namespace Negri.Wcl
+namespace Negri.Wot.Wcl
 {
     internal class Program
     {
@@ -42,9 +35,16 @@ namespace Negri.Wcl
                     return 4;
                 }
 
+                bool calculatePerformance = false;
+                if ((args.Length >= 3) && (args[2]).Equals("performance", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    calculatePerformance = true;
+                }
+
                 WclValidator validator = new WclValidator()
                 {
-                    AppId = GetApplicationId()
+                    AppId = GetApplicationId(),
+                    CalculatePerformance = calculatePerformance
                 };
                 validator.Run(originalFile);                
 

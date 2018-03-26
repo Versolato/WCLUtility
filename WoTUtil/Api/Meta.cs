@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Negri.Wcl.Api
+namespace Negri.Wot.Api
 {
     /// <summary>
     /// Metadados das respostas

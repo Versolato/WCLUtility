@@ -5,9 +5,9 @@ using System.Net.Mail;
 using System.Text;
 using System.Text.RegularExpressions;
 using log4net;
-using Negri.Wcl.Api;
+using Negri.Wot.Api;
 
-namespace Negri.Wcl
+namespace Negri.Wot.Wcl
 {
     /// <summary>
     ///     A raw record, from chalonge

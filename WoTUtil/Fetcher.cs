@@ -5,13 +5,12 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using log4net;
-using Negri.Wcl.Api;
+using Negri.Wot.Api;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Negri.Wcl
+namespace Negri.Wot
 {
     /// <summary>
     ///     Read information from the Web

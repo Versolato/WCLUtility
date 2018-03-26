@@ -6,7 +6,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{9E9C7E53-1A72-4DC5-8790-EA288D0CC4C9}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>Negri.Wcl</RootNamespace>
+    <RootNamespace>Negri.Wot.Wcl</RootNamespace>
     <AssemblyName>WCLUtility</AssemblyName>
     <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

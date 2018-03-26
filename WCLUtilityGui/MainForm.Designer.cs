@@ -1,4 +1,4 @@
-﻿namespace Negri.Wcl
+﻿namespace Negri.Wot.Wcl
 {
     partial class MainForm
     {

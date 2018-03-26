@@ -1,4 +1,4 @@
-namespace Negri.Wcl.Api
+namespace Negri.Wot.Api
 {
     /// <summary>
     /// Rank do Membro dentro do clã

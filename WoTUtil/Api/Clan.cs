@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 
-namespace Negri.Wcl.Api
+namespace Negri.Wot.Api
 {
     /// <summary>
     /// Um clã

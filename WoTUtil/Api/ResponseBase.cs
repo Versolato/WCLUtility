@@ -1,4 +1,4 @@
-﻿namespace Negri.Wcl.Api
+﻿namespace Negri.Wot.Api
 {
     /// <summary>
     ///     Resposta de API da Wargaming

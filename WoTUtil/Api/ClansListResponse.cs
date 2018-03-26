@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Negri.Wcl.Api
+namespace Negri.Wot.Api
 {
     /// <summary>
     /// A resposta da busca por um clã
