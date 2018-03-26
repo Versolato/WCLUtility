@@ -19,51 +19,126 @@ namespace Negri.Wcl
         /// </summary>
         private static readonly ILog Log = LogManager.GetLogger(typeof(WclValidator));
 
+        /// <summary>
+        /// The App Id to query WG API
+        /// </summary>
         public string AppId { private get; set; }
 
+        /// <summary>
+        /// Output file
+        /// </summary>
         public string ResultFile { get; private set; }
-   
+
+        /// <summary>
+        /// 100% valid records
+        /// </summary>
+        public int ValidRecords { get; private set; }
+
+        /// <summary>
+        /// Total records
+        /// </summary>
+        public int TotalRecords { get; private set; }
+
+        /// <summary>
+        /// The current progress
+        /// </summary>
+        public double Progress { get; private set; } = 0.0;
+
+        /// <summary>
+        /// Current status
+        /// </summary>
+        public string Status { get; private set; }
+
+        private void SetInfo(string msg)
+        {
+            Log.Info(msg);
+            Status = msg;            
+        }
+
+        private void SetWarn(string msg)
+        {
+            Log.Warn(msg);
+            Status = msg;
+        }
+
+        private void SetError(string msg)
+        {
+            Log.Error(msg);
+            Status = msg;
+        }
+
         public void Run(string originalFile)
         {
-            Log.Info($"Parsing file '{originalFile}'...");
-            var allLines = File.ReadAllLines(originalFile, Encoding.UTF8);
-            var records = Parse(allLines).ToArray();
-            Log.Info($"{records.Length:N0} records read from file...");
-
-            Log.Info("Checking for basic errors...");
-            var invalids = RunBasicValidations(records);
-            if (invalids > 0)
+            try
             {
-                Log.Error($"{invalids:N0} records invalidated on the 1st pass (Basic Errors).");
-            }
+                Progress = 0.0;
 
-            Log.Info("Checking for clans errors...");
-            invalids = GetClanIds(records);
-            if (invalids > 0)
+                SetInfo($"Parsing file '{originalFile}'...");
+                var allLines = File.ReadAllLines(originalFile, Encoding.UTF8);
+                var records = Parse(allLines).ToArray();
+                SetInfo($"{records.Length:N0} records read from file...");
+                TotalRecords = records.Length;
+
+                if (records.Length == 0)
+                {
+                    SetError("No records where found!");
+                    return;
+                }
+
+                Progress = 0.10;
+
+                SetInfo("Checking for basic errors...");
+                var invalids = RunBasicValidations(records);
+                if (invalids > 0)
+                {
+                    SetError($"{invalids:N0} records invalidated on the 1st pass (Basic Errors).");
+                }
+
+                Progress = 0.20;
+
+                SetInfo("Checking for clans errors...");
+                invalids = GetClanIds(records, 0.20, 0.50);
+                if (invalids > 0)
+                {
+                    SetError($"{invalids:N0} records invalidated on the 2nd pass (Checking Clans).");
+                }
+
+                Progress = 0.50;
+
+                SetInfo("Checking for player errors...");
+                invalids = GetPlayerIds(records, 0.50, 0.90);
+                if (invalids > 0)
+                {
+                    SetError($"{invalids:N0} records invalidated on the 3rd pass (Checking Users).");
+                }
+
+                SetInfo($"{records.Count(r => r.IsValid)} valids records");
+
+                Progress = 0.90;
+
+                SetInfo("Checking for relational errors...");
+                invalids = CheckRelationalErrors(records);
+                if (invalids > 0)
+                {
+                    SetError($"{invalids:N0} records invalidated on the 4rd pass (Checking Relations).");
+                }
+
+                Progress = 0.95;
+
+                ValidRecords = records.Count(r => r.IsValid);
+                SetInfo($"{ValidRecords:N0} valids records");
+
+                SetInfo("Writing output file...");
+                WriteFile(originalFile, records);
+                SetInfo("All done!");
+
+                Progress = 1.0;
+            }
+            catch(Exception ex)
             {
-                Log.Error($"{invalids:N0} records invalidated on the 2nd pass (Checking Clans).");
-            }
-
-            Log.Info("Checking for player errors...");
-            invalids = GetPlayerIds(records);
-            if (invalids > 0)
-            {
-                Log.Error($"{invalids:N0} records invalidated on the 3rd pass (Checking Users).");
-            }
-
-            Log.Info($"{records.Count(r => r.IsValid)} valids records");
-
-            Log.Info("Checking for relational errors...");
-            invalids = CheckRelationalErrors(records);
-            if (invalids > 0)
-            {
-                Log.Error($"{invalids:N0} records invalidated on the 4rd pass (Checking Relations).");
-            }
-
-            Log.Info($"{records.Count(r => r.IsValid)} valids records");
-
-            Log.Info("Writing output file...");
-            WriteFile(originalFile, records);
+                Log.Error(nameof(Run), ex);
+                SetError(ex.Message);
+            }            
         }
 
         private static int CheckRelationalErrors(Record[] records)
@@ -130,13 +205,15 @@ namespace Negri.Wcl
             }
 
             File.WriteAllText(newFile, sb.ToString(), Encoding.UTF8);
-            Log.Info($"Validated file wrote on '{newFile}'.");
+            SetInfo($"Validated file wrote on '{newFile}'.");
 
             ResultFile = newFile;
         }
 
-        private int GetPlayerIds(Record[] records)
+        private int GetPlayerIds(Record[] records, double startProgress, double finalProgress)
         {
+            double incProgress = (finalProgress - startProgress) / records.Length;
+
             const int maxParallel = 4;
             var fetchers = new ConcurrentQueue<Fetcher>();
             for (int i = 0; i < maxParallel * 4; i++)
@@ -148,11 +225,15 @@ namespace Negri.Wcl
                 fetchers.Enqueue(fetcher);
             }
 
+            int done = 0;
             int invalidCount = 0;
             var a = records.Where(r => !string.IsNullOrWhiteSpace(r.GamerTag)).ToArray();
             Parallel.For(0, a.Length, new ParallelOptions { MaxDegreeOfParallelism = maxParallel }, i =>
             {
                 var r = a[i];
+
+                Progress = startProgress + incProgress * done;
+                Interlocked.Increment(ref done);
 
                 Fetcher fetcher;
                 while (!fetchers.TryDequeue(out fetcher))
@@ -179,8 +260,10 @@ namespace Negri.Wcl
             return invalidCount;
         }
 
-        private int GetClanIds(Record[] records)
+        private int GetClanIds(Record[] records, double startProgress, double finalProgress)
         {
+            double incProgress = (finalProgress - startProgress) / records.Length;
+
             var fetcher = new Fetcher
             {
                 ApplicationId = AppId
@@ -189,9 +272,12 @@ namespace Negri.Wcl
             var clanIds = new Dictionary<string, long>();
             var notFound = new HashSet<string>();
 
+            int done = 0;
             int invalidCount = 0;
             foreach (var r in records.Where(r => !string.IsNullOrEmpty(r.ClanTag)))
             {
+                Progress = startProgress + incProgress * (done++);
+
                 if (notFound.Contains(r.ClanTag))
                 {
                     r.AddInvalidReason($"Could not find a clan with the tag [{r.ClanTag}]");
@@ -241,7 +327,7 @@ namespace Negri.Wcl
 
                     if (clanIds.TryGetValue(r.ClanTagFromUrl, out existingId))
                     {
-                        Log.Warn($"The teamName [{r.ClanTag}] could not be found. Matched by the Url [{r.ClanTagFromUrl}]");
+                        SetWarn($"The teamName [{r.ClanTag}] could not be found. Matched by the Url [{r.ClanTagFromUrl}]");
                         r.ClanUrl = $"https://console.worldoftanks.com/en/clans/xbox/{r.ClanTagFromUrl}/";
                         r.ClanTag = r.ClanTagFromUrl;
                         r.ClanId = existingId;
@@ -251,7 +337,7 @@ namespace Negri.Wcl
                     clanId = fetcher.FindClan(r.ClanTagFromUrl);
                     if (clanId != null)
                     {
-                        Log.Warn($"The teamName [{r.ClanTag}] could not be found. Matched by the Url [{r.ClanTagFromUrl}]");
+                        SetWarn($"The teamName [{r.ClanTag}] could not be found. Matched by the Url [{r.ClanTagFromUrl}]");
                         r.ClanUrl = $"https://console.worldoftanks.com/en/clans/xbox/{r.ClanTagFromUrl}/";
                         r.ClanTag = r.ClanTagFromUrl;
                         r.ClanId = clanId.Value;
@@ -269,7 +355,7 @@ namespace Negri.Wcl
             return invalidCount;
         }
 
-        private static int RunBasicValidations(IEnumerable<Record> records)
+        private int RunBasicValidations(IEnumerable<Record> records)
         {
             int invalidCount = 0;
             foreach (var r in records)
@@ -277,14 +363,14 @@ namespace Negri.Wcl
                 if (!r.Validate())
                 {
                     ++invalidCount;
-                    Log.Warn($"Line {r.OriginalLine:0000} is invalid. Reason: {r.InvalidReasons}");
+                    SetWarn($"Line {r.OriginalLine:0000} is invalid. Reason: {r.InvalidReasons}");
                 }
             }
 
             return invalidCount;
         }
 
-        private static IEnumerable<Record> Parse(IEnumerable<string> allLines)
+        private IEnumerable<Record> Parse(IEnumerable<string> allLines)
         {
             var a = allLines.ToArray();
             for (var i = 1; i < a.Length; i++)
@@ -304,7 +390,7 @@ namespace Negri.Wcl
 
                 if (r == null)
                 {
-                    Log.Error($"Line {i + 1} was ignored.");
+                    SetError($"Line {i + 1} was ignored.");
                     continue;
                 }
 
