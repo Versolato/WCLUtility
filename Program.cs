@@ -35,13 +35,9 @@ namespace Negri.Wot.Wcl
                     return 4;
                 }
 
-                bool calculatePerformance = false;
-                if ((args.Length >= 3) && (args[2]).Equals("performance", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    calculatePerformance = true;
-                }
+                bool calculatePerformance = args.Length >= 3 && args[2].Equals("performance", StringComparison.InvariantCultureIgnoreCase);
 
-                WclValidator validator = new WclValidator()
+                WclValidator validator = new WclValidator
                 {
                     AppId = GetApplicationId(),
                     CalculatePerformance = calculatePerformance
@@ -80,7 +76,5 @@ namespace Negri.Wot.Wcl
 
             return File.ReadAllText(file, Encoding.UTF8).Trim();
         }
-
-        
     }
 }
