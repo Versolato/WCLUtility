@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>WCLUtility</title>
+</head>
+<body>
+
+    <h1 id="wclutility">WCLUtility</h1>
+<p>A utility to help with the <a href="https://battlefy.com/world-of-tanks-community-league-wcl">WCL</a> - World of Tanks Communit League</p>
+<h2 id="what">What?</h2>
+<p>It's a small console application, running over .Net 4.7.1, that receives a master file, from <a href="https://battlefy.com/">Battlefy</a>, containing the teams (clans), it's players, contact information etc and (try) to validade this data to ensure that:</p>
+<ul>
+<li>Clan's tags are correct;</li>
+<li>Player's Gamers Tags are correct;</li>
+<li>Contact's Gamer Tag is correct;</li>
+<li>Contact's e-mail os correct;</li>
+<li>Preferred and Backup Game Server are valid choices;</li>
+<li>The parent clan, if any, is correct;</li>
+<li>That players on the team that were on the top 32 teams of the previous season are correctly reported.</li>
+</ul>
+<h2 id="how">How?</h2>
+<p>The program parses the CSV, and then for each peace of information it queries some <a href="https://developers.wargaming.net/">WG APIs</a> and apply some heuristics to <em>clean up</em> the data.</p>
+<p>The output of the program is another CSV, with the data validated, and aditional columns with normalized information, or the reason why the original record is wrong.</p>
+<h3 id="er.i-mean-how-to-run-the-program">Er... I mean <em>how to run</em> the program!</h3>
+<h4 id="easy-mode">Easy Mode</h4>
+<p>If you already have the binaries provided by me, just go to the directory where you copied this and click on the program <code>WCLUtilityGui.exe</code> (the one with the tank icon), and follow the
+instructions.</p>
+<p>The program may take several minutes to run, as it needs to query <em>a lot</em> of data over the Internet. So, be patient.</p>
+<h4 id="not-so-easy-mode">Not so Easy Mode</h4>
+<p>If you already have the binaries provided by me, just go to the directory where you copied this and execute with the command</p>
+<p><code>WCLUtility Validate &quot;c:\a path\Battlefy_master_file.csv&quot;</code></p>
+<p>The program may take several minutes to run, as it needs to query <em>a lot</em> of data over the Internet. So, be patient.</p>
+<p>When the program finishes it will write, on the same folder where the input file was, a new file with <em>valid.</em> before the original name. In our example it would be <code>c:\a path\valid.Battlefy_master_file.csv</code>.</p>
+<p>The program will write a log file on the path <code>%LocalAppData%\Negri\WCL\Log</code>. It will also write a lot of small cache files on <code>%temp%</code>. You may want to delete these after the season.</p>
+<h2 id="compiling">Compiling</h2>
+<p>If you want to compile, just clone and open on Visual Studio (I used VS 2017). You will be missing a small text file called <code>AppId.txt</code>. It contains the <em>Wargaming App Id</em> that you can create on their <a href="https://developers.wargaming.net/">Developer Portal</a>.</p>
+<p>Without this key file on the same directory of the binaries the application will run with the <code>demo</code> app id, witch is quite limited.</p>
+<h2 id="wcl3-fields">WCL3 Fields</h2>
+<ul>
+<li>Team Name;</li>
+<li>Gamer Tag (inGameName);</li>
+<li>CheckInAt (?)</li>
+<li>Team Name (Again!?);</li>
+<li>Clan Tag;</li>
+<li>Clan Membership Page Link;</li>
+<li>Preferred Server;</li>
+<li>Alternate Server;</li>
+<li>Team Contact E-Mail.</li>
+</ul>
+<h2 id="path-ahead">Path Ahead</h2>
+<ul>
+<li>Computing WN8, WinRate and Average Tier of the Players and Teams;</li>
+</ul>
+
+
+</body>
+</html>

@@ -7,6 +7,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WoTUtil", "WoTUtil\WoTUtil.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WCLUtilityGui", "WCLUtilityGui\WCLUtilityGui.csproj", "{6401F3C0-C180-4205-82B6-7E5BE5DF47A5}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C9D6BA60-DA5F-48E5-BF39-E01D98A59B2F}"
+	ProjectSection(SolutionItems) = preProject
+		README.html = README.html
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
