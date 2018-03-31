@@ -236,11 +236,13 @@ namespace Negri.Wot.Wcl
             Debug.Assert(dir != null, nameof(dir) + " != null");
             var newFile = Path.Combine(dir, $"valid.{baseName}");
 
+            var type = records.FirstOrDefault()?.Type ?? Record.RecordType.Full;
+
             var sb = new StringBuilder();
-            sb.AppendLine(Record.LineHeader);
+            sb.AppendLine(type == Record.RecordType.Full ? Record.FullLineHeader : Record.SimpleLineHeader);
             foreach (var r in records)
             {
-                sb.AppendLine(r.ToString());
+                sb.AppendLine(r.ToString(type));
             }
 
             File.WriteAllText(newFile, sb.ToString(), Encoding.UTF8);
@@ -406,11 +408,12 @@ namespace Negri.Wot.Wcl
             int invalidCount = 0;
             foreach (var r in records)
             {
-                if (!r.Validate())
+                r.Validate();
+                if (!r.IsValid)
                 {
                     ++invalidCount;
                     SetWarn($"Line {r.OriginalLine:0000} is invalid. Reason: {r.InvalidReasons}");
-                }
+                }                
             }
 
             return invalidCount;

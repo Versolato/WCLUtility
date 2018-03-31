@@ -15,6 +15,19 @@ namespace Negri.Wot.Wcl
     /// </summary>
     public class Record
     {
+        public enum RecordType
+        {
+            /// <summary>
+            /// All Fields
+            /// </summary>
+            Full = 0,
+
+            /// <summary>
+            /// Only basic fields
+            /// </summary>
+            Simple = 1
+        }
+
         public enum ServerLocation
         {
             /// <summary>
@@ -43,8 +56,11 @@ namespace Negri.Wot.Wcl
             Unknown = 4
         }
 
-        public const string LineHeader =
+        public const string FullLineHeader =
             "Team Name,Gamer Tag,Checked In At,Team Name Again,Clan Tag,Clan Url,Preferred Server,Alternate Server,Contact E-Mail,Original Line Number,Is Valid,Invalid Reasons,Clan Id,Player Id,Current Clan Id,Current Clan Tag,Player Moment,Preferred Server Code,Alternate Server Code,Battles,WinRate,AvgTier,Wn8,Tier10Battles,Tier10WinRate,Tier10Wn8,Tier10DirectDamage";
+
+        public const string SimpleLineHeader =
+            "Gamer Tag,Team Name,Clan Tag,Original Line Number,Is Valid,Invalid Reasons,Clan Id,Player Id,Current Clan Id,Current Clan Tag,Player Moment,Preferred Server Code,Alternate Server Code,Battles,WinRate,AvgTier,Wn8,Tier10Battles,Tier10WinRate,Tier10Wn8,Tier10DirectDamage";
 
         /// <summary>
         ///     Log
@@ -78,6 +94,11 @@ namespace Negri.Wot.Wcl
         private Record()
         {
         }
+
+        /// <summary>
+        /// The type of record
+        /// </summary>
+        public RecordType Type { get; private set; } = RecordType.Full;
 
         /// <summary>
         ///     The original line for the record
@@ -148,20 +169,35 @@ namespace Negri.Wot.Wcl
         /// <summary>
         ///     Validates the record (only internal coerence)
         /// </summary>
-        public bool Validate()
+        public void Validate()
         {
             if (string.IsNullOrWhiteSpace(TeamName))
             {
-                AddInvalidReason("Team Name (field 1) is empty.");
+                AddInvalidReason("Team Name is empty.");
             }
 
             if (string.IsNullOrWhiteSpace(GamerTag))
             {
-                AddInvalidReason("Gamer Tag (field 2) is empty.");
+                AddInvalidReason("Gamer Tag is empty.");
             }
             else if (!GamerTagRegex.IsMatch(GamerTag))
             {
-                AddInvalidReason($"Gamer Tag (field 2, '{GamerTag}') is invalid.");
+                AddInvalidReason($"Gamer Tag [{GamerTag}] is invalid.");
+            }
+
+            if (string.IsNullOrWhiteSpace(ClanTag) == false)
+            {
+                ClanTag = ClanTag.Trim('[', ']', '{', '}', '<', '>', ' ', '\t');
+            }
+
+            if (!string.IsNullOrWhiteSpace(ClanTag) && !ClanTagRegex.IsMatch(ClanTag))
+            {
+                AddInvalidReason($"Clan Tag [{ClanTag}] is invalid.");
+            }
+
+            if (Type == RecordType.Simple)
+            {
+                return;
             }
 
             if (string.IsNullOrEmpty(CheckedInAt))
@@ -175,17 +211,7 @@ namespace Negri.Wot.Wcl
                 // Is it a problem?
                 TeamNameAgain = string.Empty;
             }
-
-            if (string.IsNullOrWhiteSpace(ClanTag) == false)
-            {
-                ClanTag = ClanTag.Trim('[', ']', '{', '}', '<', '>', ' ', '\t');
-            }
-
-            if (!string.IsNullOrWhiteSpace(ClanTag) && !ClanTagRegex.IsMatch(ClanTag))
-            {
-                AddInvalidReason($"Clan Tag (field 6, '{ClanTag}') is invalid.");
-            }
-
+            
             if (!string.IsNullOrWhiteSpace(ClanUrl))
             {
                 var match = ClanUrlRegex.Match(ClanUrl);
@@ -232,8 +258,237 @@ namespace Negri.Wot.Wcl
                     AddInvalidReason($"Team Contact Gamer E-Mail (field 9, '{TeamContactMail}') is invalid.");
                 }
             }
+            
+        }
 
-            return true;
+        public string ToString(RecordType type)
+        {
+            return type == RecordType.Full ? ToStringFull() : ToStringSimple();
+        }
+
+        private string ToStringSimple()
+        {
+            var sb = new StringBuilder(1024);
+
+            sb.Append(SanitizeToCsv(GamerTag));
+            sb.Append(",");
+
+            sb.Append(SanitizeToCsv(TeamName));
+            sb.Append(",");
+                        
+            if (!string.IsNullOrWhiteSpace(ClanTag))
+            {
+                sb.Append(SanitizeToCsv(ClanTag));
+            }
+            sb.Append(",");
+
+            // new fields
+
+            sb.Append(OriginalLine);
+            sb.Append(",");
+
+            sb.Append(IsValid ? "1" : "0");
+            sb.Append(",");
+
+            if (!IsValid)
+            {
+                sb.Append(SanitizeToCsv(InvalidReasons));
+            }
+
+            sb.Append(",");
+
+            if (ClanId.HasValue)
+            {
+                sb.Append(ClanId.Value);
+            }
+
+            sb.Append(",");
+
+            if (Player != null)
+            {
+                sb.Append(Player.Id);
+            }
+
+            sb.Append(",");
+
+            if (Player?.CurrentClanId != null)
+            {
+                sb.Append(Player.CurrentClanId.Value);
+            }
+
+            sb.Append(",");
+
+            if (Player?.CurrentClanTag != null)
+            {
+                sb.Append(Player.CurrentClanTag);
+            }
+
+            sb.Append(",");
+
+            if (Player != null)
+            {
+                sb.Append(Player.Moment.ToString("yyyy-MM-dd HH:mm:ss"));
+            }
+
+            sb.Append(",");
+
+            sb.Append(PreferredServerLocation);
+            sb.Append(",");
+
+            sb.Append(AlternateServerLocation);
+            sb.Append(",");
+
+            if (Player == null)
+            {
+                sb.Append(",,,,,,,");
+            }
+            else
+            {
+                sb.Append($"{SanitizeToCsv(Player.Battles.ToString("N0", CultureInfo.InvariantCulture))}," +
+                          $"{SanitizeToCsv(Player.WinRate.ToString("N4", CultureInfo.InvariantCulture))}," +
+                          $"{SanitizeToCsv(Player.AvgTier.ToString("N2", CultureInfo.InvariantCulture))}," +
+                          $"{SanitizeToCsv(Player.Wn8.ToString("N0", CultureInfo.InvariantCulture))}," +
+                          $"{SanitizeToCsv(Player.Tier10Battles.ToString("N0", CultureInfo.InvariantCulture))}," +
+                          $"{SanitizeToCsv(Player.Tier10WinRate.ToString("N4", CultureInfo.InvariantCulture))}," +
+                          $"{SanitizeToCsv(Player.Tier10Wn8.ToString("N0", CultureInfo.InvariantCulture))}," +
+                          $"{SanitizeToCsv(Player.Tier10DirectDamage.ToString("N0", CultureInfo.InvariantCulture))}");
+            }
+
+            return sb.ToString();
+        }
+
+        private string ToStringFull()
+        {
+            var sb = new StringBuilder(1024);
+
+            sb.Append(SanitizeToCsv(TeamName));
+            sb.Append(",");
+
+            sb.Append(SanitizeToCsv(GamerTag));
+            sb.Append(",");
+
+            if (!string.IsNullOrWhiteSpace(CheckedInAt))
+            {
+                sb.Append(SanitizeToCsv(CheckedInAt));
+            }
+
+            sb.Append(",");
+
+            if (!string.IsNullOrWhiteSpace(TeamNameAgain))
+            {
+                sb.Append(SanitizeToCsv(TeamNameAgain));
+            }
+
+            sb.Append(",");
+
+            if (!string.IsNullOrWhiteSpace(ClanTag))
+            {
+                sb.Append(SanitizeToCsv(ClanTag));
+            }
+
+            sb.Append(",");
+
+            if (!string.IsNullOrWhiteSpace(ClanUrl))
+            {
+                sb.Append(SanitizeToCsv(ClanUrl));
+            }
+
+            sb.Append(",");
+
+            if (!string.IsNullOrWhiteSpace(PreferredServer))
+            {
+                sb.Append(SanitizeToCsv(PreferredServer));
+            }
+
+            sb.Append(",");
+
+            if (!string.IsNullOrWhiteSpace(AlternateServer))
+            {
+                sb.Append(SanitizeToCsv(AlternateServer));
+            }
+
+            sb.Append(",");
+
+            if (TeamContactMailAddress != null)
+            {
+                sb.Append(SanitizeToCsv(TeamContactMailAddress.Address));
+            }
+
+            sb.Append(",");
+
+            // new fields
+
+            sb.Append(OriginalLine);
+            sb.Append(",");
+
+            sb.Append(IsValid ? "1" : "0");
+            sb.Append(",");
+
+            if (!IsValid)
+            {
+                sb.Append(SanitizeToCsv(InvalidReasons));
+            }
+
+            sb.Append(",");
+
+            if (ClanId.HasValue)
+            {
+                sb.Append(ClanId.Value);
+            }
+
+            sb.Append(",");
+
+            if (Player != null)
+            {
+                sb.Append(Player.Id);
+            }
+
+            sb.Append(",");
+
+            if (Player?.CurrentClanId != null)
+            {
+                sb.Append(Player.CurrentClanId.Value);
+            }
+
+            sb.Append(",");
+
+            if (Player?.CurrentClanTag != null)
+            {
+                sb.Append(Player.CurrentClanTag);
+            }
+
+            sb.Append(",");
+
+            if (Player != null)
+            {
+                sb.Append(Player.Moment.ToString("yyyy-MM-dd HH:mm:ss"));
+            }
+
+            sb.Append(",");
+
+            sb.Append(PreferredServerLocation);
+            sb.Append(",");
+
+            sb.Append(AlternateServerLocation);
+            sb.Append(",");
+
+            if (Player == null)
+            {
+                sb.Append(",,,,,,,");
+            }
+            else
+            {
+                sb.Append($"{SanitizeToCsv(Player.Battles.ToString("N0", CultureInfo.InvariantCulture))}," +
+                          $"{SanitizeToCsv(Player.WinRate.ToString("N4", CultureInfo.InvariantCulture))}," +
+                          $"{SanitizeToCsv(Player.AvgTier.ToString("N2", CultureInfo.InvariantCulture))}," +
+                          $"{SanitizeToCsv(Player.Wn8.ToString("N0", CultureInfo.InvariantCulture))}," +
+                          $"{SanitizeToCsv(Player.Tier10Battles.ToString("N0", CultureInfo.InvariantCulture))}," +
+                          $"{SanitizeToCsv(Player.Tier10WinRate.ToString("N4", CultureInfo.InvariantCulture))}," +
+                          $"{SanitizeToCsv(Player.Tier10Wn8.ToString("N0", CultureInfo.InvariantCulture))}," +
+                          $"{SanitizeToCsv(Player.Tier10DirectDamage.ToString("N0", CultureInfo.InvariantCulture))}");
+            }
+
+            return sb.ToString();
         }
 
         /// <summary>
@@ -398,161 +653,54 @@ namespace Negri.Wot.Wcl
         /// <inheritdoc />
         public override string ToString()
         {
-            var sb = new StringBuilder(1024);
-
-            sb.Append(SanitizeToCsv(TeamName));
-            sb.Append(",");
-
-            sb.Append(SanitizeToCsv(GamerTag));
-            sb.Append(",");
-
-            if (!string.IsNullOrWhiteSpace(CheckedInAt))
-            {
-                sb.Append(SanitizeToCsv(CheckedInAt));
-            }
-
-            sb.Append(",");
-
-            if (!string.IsNullOrWhiteSpace(TeamNameAgain))
-            {
-                sb.Append(SanitizeToCsv(TeamNameAgain));
-            }
-
-            sb.Append(",");
-
-            if (!string.IsNullOrWhiteSpace(ClanTag))
-            {
-                sb.Append(SanitizeToCsv(ClanTag));
-            }
-
-            sb.Append(",");
-
-            if (!string.IsNullOrWhiteSpace(ClanUrl))
-            {
-                sb.Append(SanitizeToCsv(ClanUrl));
-            }
-
-            sb.Append(",");
-
-            if (!string.IsNullOrWhiteSpace(PreferredServer))
-            {
-                sb.Append(SanitizeToCsv(PreferredServer));
-            }
-
-            sb.Append(",");
-
-            if (!string.IsNullOrWhiteSpace(AlternateServer))
-            {
-                sb.Append(SanitizeToCsv(AlternateServer));
-            }
-
-            sb.Append(",");
-
-            if (TeamContactMailAddress != null)
-            {
-                sb.Append(SanitizeToCsv(TeamContactMailAddress.Address));
-            }
-
-            sb.Append(",");
-
-            // new fields
-
-            sb.Append(OriginalLine);
-            sb.Append(",");
-
-            sb.Append(IsValid ? "1" : "0");
-            sb.Append(",");
-
-            if (!IsValid)
-            {
-                sb.Append(SanitizeToCsv(InvalidReasons));
-            }
-
-            sb.Append(",");
-
-            if (ClanId.HasValue)
-            {
-                sb.Append(ClanId.Value);
-            }
-
-            sb.Append(",");
-
-            if (Player != null)
-            {
-                sb.Append(Player.Id);
-            }
-
-            sb.Append(",");
-
-            if (Player?.CurrentClanId != null)
-            {
-                sb.Append(Player.CurrentClanId.Value);
-            }
-
-            sb.Append(",");
-
-            if (Player?.CurrentClanTag != null)
-            {
-                sb.Append(Player.CurrentClanTag);
-            }
-
-            sb.Append(",");
-
-            if (Player != null)
-            {
-                sb.Append(Player.Moment.ToString("yyyy-MM-dd HH:mm:ss"));
-            }
-
-            sb.Append(",");
-
-            sb.Append(PreferredServerLocation);
-            sb.Append(",");
-
-            sb.Append(AlternateServerLocation);
-            sb.Append(",");
-
-            if (Player == null)
-            {
-                sb.Append(",,,,,,,");
-            }
-            else
-            {
-                sb.Append($"{SanitizeToCsv(Player.Battles.ToString("N0", CultureInfo.InvariantCulture))}," +
-                          $"{SanitizeToCsv(Player.WinRate.ToString("N4", CultureInfo.InvariantCulture))}," +
-                          $"{SanitizeToCsv(Player.AvgTier.ToString("N2", CultureInfo.InvariantCulture))}," +
-                          $"{SanitizeToCsv(Player.Wn8.ToString("N0", CultureInfo.InvariantCulture))}," +
-                          $"{SanitizeToCsv(Player.Tier10Battles.ToString("N0", CultureInfo.InvariantCulture))}," +
-                          $"{SanitizeToCsv(Player.Tier10WinRate.ToString("N4", CultureInfo.InvariantCulture))}," +
-                          $"{SanitizeToCsv(Player.Tier10Wn8.ToString("N0", CultureInfo.InvariantCulture))}," +
-                          $"{SanitizeToCsv(Player.Tier10DirectDamage.ToString("N0", CultureInfo.InvariantCulture))}");
-            }
-
-            return sb.ToString();
+            return ToStringFull();
         }
 
         public static Record Parse(string line, int lineNumber)
         {
             var f = Splitter.Split(line);
 
-            if (f.Length < 9)
+            if (f.Length < 3)
+            {
+                Log.Warn($"There are {f.Length} fields when the expected was at least 3");
+                return null;
+            }            
+            
+            Record r;
+            if (f.Length == 3)
+            {
+                r = new Record
+                {
+                    Type = RecordType.Simple,
+                    GamerTag = f[0].Trim().Trim('"').Trim().RemoveDiacritics(),
+                    TeamName = f[1].Trim().Trim('"').Trim(),
+                    ClanTag = f[2].Trim().Trim('"', '[', ']').Trim().ToUpperInvariant(),
+                    OriginalLine = lineNumber
+                };
+            }
+            else if (f.Length >= 9)
+            {
+                r = new Record
+                {
+                    Type = RecordType.Full,
+                    TeamName = f[0].Trim().Trim('"').Trim(),
+                    GamerTag = f[1].Trim().Trim('"').Trim().RemoveDiacritics(),
+                    CheckedInAt = f[2].Trim().Trim('"').Trim(),
+                    TeamNameAgain = f[3].Trim().Trim('"').Trim(),
+                    ClanTag = f[4].Trim().Trim('"').Trim().ToUpperInvariant(),
+                    ClanUrl = f[5].Trim().Trim('"').Trim(),
+                    PreferredServer = f[6].Trim().Trim('"').Trim(),
+                    AlternateServer = f[7].Trim().Trim('"').Trim(),
+                    TeamContactMail = f[8].Trim().Trim('"').Trim(),
+                    OriginalLine = lineNumber
+                };
+            }
+            else
             {
                 Log.Warn($"There are {f.Length} fields when the expected was at least 9");
                 return null;
             }
-
-            var r = new Record
-            {
-                TeamName = f[0].Trim().Trim('"').Trim(),
-                GamerTag = f[1].Trim().Trim('"').Trim(),
-                CheckedInAt = f[2].Trim().Trim('"').Trim(),
-                TeamNameAgain = f[3].Trim().Trim('"').Trim(),
-                ClanTag = f[4].Trim().Trim('"').Trim().ToUpperInvariant(),
-                ClanUrl = f[5].Trim().Trim('"').Trim(),
-                PreferredServer = f[6].Trim().Trim('"').Trim(),
-                AlternateServer = f[7].Trim().Trim('"').Trim(),
-                TeamContactMail = f[8].Trim().Trim('"').Trim(),
-                OriginalLine = lineNumber
-            };
+            
 
             return r;
         }

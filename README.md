@@ -22,32 +22,20 @@ The output of the program is another CSV, with the data validated, and aditional
 
 ### Er... I mean *how to run* the program!
 
-#### Easy Mode
-
 If you already have the binaries provided by me, just go to the directory where you copied this and click on the program `WCLUtilityGui.exe` (the one with the tank icon), and follow the
 instructions.
 
 The program may take several minutes to run, as it needs to query *a lot* of data over the Internet. So, be patient.
 
-#### Not so Easy Mode
-
-If you already have the binaries provided by me, just go to the directory where you copied this and execute with the command
-
-`WCLUtility Validate "c:\a path\Battlefy_master_file.csv"`
-
-The program may take several minutes to run, as it needs to query *a lot* of data over the Internet. So, be patient.
-
-When the program finishes it will write, on the same folder where the input file was, a new file with *valid.* before the original name. In our example it would be `c:\a path\valid.Battlefy_master_file.csv`.
-
-The program will write a log file on the path `%LocalAppData%\Negri\WCL\Log`. It will also write a lot of small cache files on `%temp%`. You may want to delete these after the season.
-
 ## Compiling
 
-If you want to compile, just clone and open on Visual Studio (I used VS 2017). You will be missing a small text file called `AppId.txt`. It contains the *Wargaming App Id* that you can create on their [Developer Portal](https://developers.wargaming.net/).
+If you want to compile, just clone and open on Visual Studio (I used VS 2017, But the free edition will do it). You will be missing a small text file called `AppId.txt`. It contains the *Wargaming App Id* that you can create on their [Developer Portal](https://developers.wargaming.net/).
 
 Without this key file on the same directory of the binaries the application will run with the `demo` app id, witch is quite limited.
 
 ## WCL3 Fields
+
+### Full File
 
 * Team Name;
 * Gamer Tag (inGameName);
@@ -59,6 +47,15 @@ Without this key file on the same directory of the binaries the application will
 * Alternate Server;
 * Team Contact E-Mail.
 
+or the program can proccess a simple file, as bellow.
+
+### Simple File
+
+* Gamer Tag (inGameName);
+* Team Name;
+* Clan Tag.
+
 ## Path Ahead
 
-* Computing WN8, WinRate and Average Tier of the Players and Teams;
+* ~~Computing WN8, WinRate and Average Tier of the Players and Teams;~~
+* Exporting Excel Workbook with clean records, and information on the tanks.
