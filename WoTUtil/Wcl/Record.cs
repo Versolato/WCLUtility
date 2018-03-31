@@ -60,7 +60,7 @@ namespace Negri.Wot.Wcl
             "Team Name,Gamer Tag,Checked In At,Team Name Again,Clan Tag,Clan Url,Preferred Server,Alternate Server,Contact E-Mail,Original Line Number,Is Valid,Invalid Reasons,Clan Id,Player Id,Current Clan Id,Current Clan Tag,Player Moment,Preferred Server Code,Alternate Server Code,Battles,WinRate,AvgTier,Wn8,Tier10Battles,Tier10WinRate,Tier10Wn8,Tier10DirectDamage";
 
         public const string SimpleLineHeader =
-            "Gamer Tag,Team Name,Clan Tag,Original Line Number,Is Valid,Invalid Reasons,Clan Id,Player Id,Current Clan Id,Current Clan Tag,Player Moment,Preferred Server Code,Alternate Server Code,Battles,WinRate,AvgTier,Wn8,Tier10Battles,Tier10WinRate,Tier10Wn8,Tier10DirectDamage";
+            "Gamer Tag,Team Name,Clan Tag,Original Line Number,Is Valid,Invalid Reasons,Clan Id,Player Id,Current Clan Id,Current Clan Tag,Player Moment,Battles,WinRate,AvgTier,Wn8,Tier10Battles,Tier10WinRate,Tier10Wn8,Tier10DirectDamage";
 
         /// <summary>
         ///     Log
@@ -329,15 +329,8 @@ namespace Negri.Wot.Wcl
             {
                 sb.Append(Player.Moment.ToString("yyyy-MM-dd HH:mm:ss"));
             }
-
             sb.Append(",");
-
-            sb.Append(PreferredServerLocation);
-            sb.Append(",");
-
-            sb.Append(AlternateServerLocation);
-            sb.Append(",");
-
+            
             if (Player == null)
             {
                 sb.Append(",,,,,,,");
