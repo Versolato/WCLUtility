@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27428.2011
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WCLUtility", "WCLUtility.csproj", "{9E9C7E53-1A72-4DC5-8790-EA288D0CC4C9}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WoTUtil", "WoTUtil\WoTUtil.csproj", "{32A014D1-ADEF-4D00-8205-11F1FD927523}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WCLUtilityGui", "WCLUtilityGui\WCLUtilityGui.csproj", "{6401F3C0-C180-4205-82B6-7E5BE5DF47A5}"
@@ -15,10 +13,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{9E9C7E53-1A72-4DC5-8790-EA288D0CC4C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9E9C7E53-1A72-4DC5-8790-EA288D0CC4C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9E9C7E53-1A72-4DC5-8790-EA288D0CC4C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9E9C7E53-1A72-4DC5-8790-EA288D0CC4C9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{32A014D1-ADEF-4D00-8205-11F1FD927523}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{32A014D1-ADEF-4D00-8205-11F1FD927523}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{32A014D1-ADEF-4D00-8205-11F1FD927523}.Release|Any CPU.ActiveCfg = Release|Any CPU
