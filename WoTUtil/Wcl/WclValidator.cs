@@ -248,6 +248,45 @@ namespace Negri.Wot.Wcl
             File.WriteAllText(newFile, sb.ToString(), Encoding.UTF8);
             SetInfo($"Validated file wrote on '{newFile}'.");
 
+            sb = new StringBuilder();
+
+            sb.AppendLine(TankPlayer.TankHeader);
+            foreach (var r in records)
+            {
+                if (r.Player == null)
+                {
+                    continue;
+                }
+
+                foreach (var tank in r.Player.Tier10Tanks)
+                {
+                    sb.Append(r.Player.GamerTag.SanitizeToCsv());
+                    sb.Append(",");
+
+                    sb.Append(r.ClanTag.SanitizeToCsv());
+                    sb.Append(",");
+
+                    sb.Append(r.OriginalLine);
+                    sb.Append(",");
+
+                    sb.Append(r.ClanId);
+                    sb.Append(",");
+
+                    sb.Append(r.PlayerId);
+                    sb.Append(",");
+
+                    sb.Append(r.Player.Moment.ToString("yyyy-MM-dd HH:mm:ss"));
+                    sb.Append(",");
+
+                    // The tank knows how to do it
+                    sb.AppendLine(tank.ToString(Wn8ExpectedValues));
+                }
+            }
+
+            var tankFile = Path.Combine(dir, $"tanks.{baseName}");
+            File.WriteAllText(tankFile, sb.ToString(), Encoding.UTF8);
+            SetInfo($"Tanks files wrote on '{tankFile}'.");
+
             ResultFile = newFile;
         }
 

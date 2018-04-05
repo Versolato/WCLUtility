@@ -65,6 +65,15 @@ namespace Negri.Wot.Tanks
         }
 
         /// <summary>
+        /// Calculate the WN8 in one tank
+        /// </summary>
+        public double CalculateWn8(long tankId, TankPlayerWn8Statistics played)
+        {
+            var dic = new Dictionary<long, TankPlayerWn8Statistics> {{tankId, played}};
+            return CalculateWn8(dic);
+        }
+
+        /// <summary>
         /// Calcula o WN8 de um conjunto de tanques jogados
         /// </summary>
         /// <param name="played">Dicionário com o ID de cada tanque jogado e seus valores totais</param>

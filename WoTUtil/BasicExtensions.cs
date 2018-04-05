@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -137,13 +138,35 @@ namespace Negri.Wot
             return s.Replace('/', '_').Replace('\\', '_').Replace('?', '_').Replace('*', '_').Replace('!', '_');
         }
 
-        public static string GetHash(this string Phrase)
+        public static string GetHash(this string phrase)
         {
-            SHA512Managed HashTool = new SHA512Managed();
-            Byte[] PhraseAsByte = Encoding.UTF8.GetBytes(string.Concat(Phrase));
-            Byte[] EncryptedBytes = HashTool.ComputeHash(PhraseAsByte);
-            HashTool.Clear();
-            return Convert.ToBase64String(EncryptedBytes).SanitizeForFileName();
+            SHA512Managed hashTool = new SHA512Managed();
+            Byte[] phraseAsByte = Encoding.UTF8.GetBytes(string.Concat(phrase));
+            Byte[] encryptedBytes = hashTool.ComputeHash(phraseAsByte);
+            hashTool.Clear();
+            return Convert.ToBase64String(encryptedBytes).SanitizeForFileName();
+        }
+
+
+        public static string SanitizeToCsv(this string original)
+        {
+            if (string.IsNullOrEmpty(original))
+            {
+                return string.Empty;
+            }
+
+            if (original.Contains('"'))
+            {
+                // replace double quotes with two double quotes
+                original = original.Replace("\"", "\"\"");
+            }
+
+            if (original.Contains(','))
+            {
+                original = "\"" + original + "\"";
+            }
+
+            return original;
         }
 
     }

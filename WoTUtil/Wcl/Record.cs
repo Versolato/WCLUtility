@@ -60,7 +60,7 @@ namespace Negri.Wot.Wcl
             "Team Name,Gamer Tag,Checked In At,Team Name Again,Clan Tag,Clan Url,Preferred Server,Alternate Server,Contact E-Mail,Original Line Number,Is Valid,Invalid Reasons,Clan Id,Player Id,Current Clan Id,Current Clan Tag,Player Moment,Preferred Server Code,Alternate Server Code,Battles,WinRate,AvgTier,Wn8,Tier10Battles,Tier10WinRate,Tier10Wn8,Tier10DirectDamage";
 
         public const string SimpleLineHeader =
-            "Gamer Tag,Team Name,Clan Tag,Original Line Number,Is Valid,Invalid Reasons,Clan Id,Player Id,Current Clan Id,Current Clan Tag,Player Moment,Battles,WinRate,AvgTier,Wn8,Tier10Battles,Tier10WinRate,Tier10Wn8,Tier10DirectDamage";
+            "Gamer Tag,Team Name,Clan Tag,Original Line Number,Is Valid,Invalid Reasons,Clan Id,Player Id,Current Clan Id,Current Clan Tag,Player Moment,Battles,WinRate,AvgTier,Wn8,Tier10Battles,Tier10WinRate,Tier10Wn8,Tier10DirectDamage";        
 
         /// <summary>
         ///     Log
@@ -266,19 +266,21 @@ namespace Negri.Wot.Wcl
             return type == RecordType.Full ? ToStringFull() : ToStringSimple();
         }
 
+
+
         private string ToStringSimple()
         {
             var sb = new StringBuilder(1024);
 
-            sb.Append(SanitizeToCsv(GamerTag));
+            sb.Append(GamerTag.SanitizeToCsv());
             sb.Append(",");
 
-            sb.Append(SanitizeToCsv(TeamName));
+            sb.Append(TeamName.SanitizeToCsv());
             sb.Append(",");
                         
             if (!string.IsNullOrWhiteSpace(ClanTag))
             {
-                sb.Append(SanitizeToCsv(ClanTag));
+                sb.Append(ClanTag.SanitizeToCsv());
             }
             sb.Append(",");
 
@@ -292,7 +294,7 @@ namespace Negri.Wot.Wcl
 
             if (!IsValid)
             {
-                sb.Append(SanitizeToCsv(InvalidReasons));
+                sb.Append(InvalidReasons.SanitizeToCsv());
             }
 
             sb.Append(",");
@@ -337,14 +339,14 @@ namespace Negri.Wot.Wcl
             }
             else
             {
-                sb.Append($"{SanitizeToCsv(Player.Battles.ToString("N0", CultureInfo.InvariantCulture))}," +
-                          $"{SanitizeToCsv(Player.WinRate.ToString("N4", CultureInfo.InvariantCulture))}," +
-                          $"{SanitizeToCsv(Player.AvgTier.ToString("N2", CultureInfo.InvariantCulture))}," +
-                          $"{SanitizeToCsv(Player.Wn8.ToString("N0", CultureInfo.InvariantCulture))}," +
-                          $"{SanitizeToCsv(Player.Tier10Battles.ToString("N0", CultureInfo.InvariantCulture))}," +
-                          $"{SanitizeToCsv(Player.Tier10WinRate.ToString("N4", CultureInfo.InvariantCulture))}," +
-                          $"{SanitizeToCsv(Player.Tier10Wn8.ToString("N0", CultureInfo.InvariantCulture))}," +
-                          $"{SanitizeToCsv(Player.Tier10DirectDamage.ToString("N0", CultureInfo.InvariantCulture))}");
+                sb.Append($"{Player.Battles.ToString("N0", CultureInfo.InvariantCulture).SanitizeToCsv()}," +
+                          $"{Player.WinRate.ToString("N4", CultureInfo.InvariantCulture).SanitizeToCsv()}," +
+                          $"{Player.AvgTier.ToString("N2", CultureInfo.InvariantCulture).SanitizeToCsv()}," +
+                          $"{Player.Wn8.ToString("N0", CultureInfo.InvariantCulture).SanitizeToCsv()}," +
+                          $"{Player.Tier10Battles.ToString("N0", CultureInfo.InvariantCulture).SanitizeToCsv()}," +
+                          $"{Player.Tier10WinRate.ToString("N4", CultureInfo.InvariantCulture).SanitizeToCsv()}," +
+                          $"{Player.Tier10Wn8.ToString("N0", CultureInfo.InvariantCulture).SanitizeToCsv()}," +
+                          $"{Player.Tier10DirectDamage.ToString("N0", CultureInfo.InvariantCulture).SanitizeToCsv()}");
             }
 
             return sb.ToString();
@@ -354,57 +356,57 @@ namespace Negri.Wot.Wcl
         {
             var sb = new StringBuilder(1024);
 
-            sb.Append(SanitizeToCsv(TeamName));
+            sb.Append(TeamName.SanitizeToCsv());
             sb.Append(",");
 
-            sb.Append(SanitizeToCsv(GamerTag));
+            sb.Append(GamerTag.SanitizeToCsv());
             sb.Append(",");
 
             if (!string.IsNullOrWhiteSpace(CheckedInAt))
             {
-                sb.Append(SanitizeToCsv(CheckedInAt));
+                sb.Append(CheckedInAt.SanitizeToCsv());
             }
 
             sb.Append(",");
 
             if (!string.IsNullOrWhiteSpace(TeamNameAgain))
             {
-                sb.Append(SanitizeToCsv(TeamNameAgain));
+                sb.Append(TeamNameAgain.SanitizeToCsv());
             }
 
             sb.Append(",");
 
             if (!string.IsNullOrWhiteSpace(ClanTag))
             {
-                sb.Append(SanitizeToCsv(ClanTag));
+                sb.Append(ClanTag.SanitizeToCsv());
             }
 
             sb.Append(",");
 
             if (!string.IsNullOrWhiteSpace(ClanUrl))
             {
-                sb.Append(SanitizeToCsv(ClanUrl));
+                sb.Append(ClanUrl.SanitizeToCsv());
             }
 
             sb.Append(",");
 
             if (!string.IsNullOrWhiteSpace(PreferredServer))
             {
-                sb.Append(SanitizeToCsv(PreferredServer));
+                sb.Append(PreferredServer.SanitizeToCsv());
             }
 
             sb.Append(",");
 
             if (!string.IsNullOrWhiteSpace(AlternateServer))
             {
-                sb.Append(SanitizeToCsv(AlternateServer));
+                sb.Append(AlternateServer.SanitizeToCsv());
             }
 
             sb.Append(",");
 
             if (TeamContactMailAddress != null)
             {
-                sb.Append(SanitizeToCsv(TeamContactMailAddress.Address));
+                sb.Append(TeamContactMailAddress.Address.SanitizeToCsv());
             }
 
             sb.Append(",");
@@ -419,7 +421,7 @@ namespace Negri.Wot.Wcl
 
             if (!IsValid)
             {
-                sb.Append(SanitizeToCsv(InvalidReasons));
+                sb.Append(InvalidReasons.SanitizeToCsv());
             }
 
             sb.Append(",");
@@ -471,14 +473,14 @@ namespace Negri.Wot.Wcl
             }
             else
             {
-                sb.Append($"{SanitizeToCsv(Player.Battles.ToString("N0", CultureInfo.InvariantCulture))}," +
-                          $"{SanitizeToCsv(Player.WinRate.ToString("N4", CultureInfo.InvariantCulture))}," +
-                          $"{SanitizeToCsv(Player.AvgTier.ToString("N2", CultureInfo.InvariantCulture))}," +
-                          $"{SanitizeToCsv(Player.Wn8.ToString("N0", CultureInfo.InvariantCulture))}," +
-                          $"{SanitizeToCsv(Player.Tier10Battles.ToString("N0", CultureInfo.InvariantCulture))}," +
-                          $"{SanitizeToCsv(Player.Tier10WinRate.ToString("N4", CultureInfo.InvariantCulture))}," +
-                          $"{SanitizeToCsv(Player.Tier10Wn8.ToString("N0", CultureInfo.InvariantCulture))}," +
-                          $"{SanitizeToCsv(Player.Tier10DirectDamage.ToString("N0", CultureInfo.InvariantCulture))}");
+                sb.Append($"{Player.Battles.ToString("N0", CultureInfo.InvariantCulture).SanitizeToCsv()}," +
+                          $"{Player.WinRate.ToString("N4", CultureInfo.InvariantCulture).SanitizeToCsv()}," +
+                          $"{Player.AvgTier.ToString("N2", CultureInfo.InvariantCulture).SanitizeToCsv()}," +
+                          $"{Player.Wn8.ToString("N0", CultureInfo.InvariantCulture).SanitizeToCsv()}," +
+                          $"{Player.Tier10Battles.ToString("N0", CultureInfo.InvariantCulture).SanitizeToCsv()}," +
+                          $"{Player.Tier10WinRate.ToString("N4", CultureInfo.InvariantCulture).SanitizeToCsv()}," +
+                          $"{Player.Tier10Wn8.ToString("N0", CultureInfo.InvariantCulture).SanitizeToCsv()}," +
+                          $"{Player.Tier10DirectDamage.ToString("N0", CultureInfo.InvariantCulture).SanitizeToCsv()}");
             }
 
             return sb.ToString();
@@ -620,27 +622,6 @@ namespace Negri.Wot.Wcl
             _invalidReasons.Add(reason);
             IsValid = false;
             Log.Error($"Line {OriginalLine:0000} is invalid. Reason: {reason}");
-        }
-
-        private static string SanitizeToCsv(string original)
-        {
-            if (string.IsNullOrEmpty(original))
-            {
-                return string.Empty;
-            }
-
-            if (original.Contains('"'))
-            {
-                // replace double quotes with two double quotes
-                original = original.Replace("\"", "\"\"");
-            }
-
-            if (original.Contains(','))
-            {
-                original = "\"" + original + "\"";
-            }
-
-            return original;
         }
 
         /// <inheritdoc />
