@@ -39,15 +39,37 @@ namespace Negri.Wot
         /// <summary>
         /// Parses the json of a division and writes a file on clans and groups
         /// </summary>
+        /// <remarks>
+        /// You can find the original json downloading from (for example)
+        /// Euro: https://dtmwra1jsgyb0.cloudfront.net/stages/5abf379a7049ea03465cf5e3?extend%5Bgroups%5D%5Bteams%5D=true
+        /// East: https://dtmwra1jsgyb0.cloudfront.net/stages/5abf37d5b820c003525d1a95?extend%5Bgroups%5D%5Bteams%5D=true
+        /// West: https://dtmwra1jsgyb0.cloudfront.net/stages/5abf37ffb946620355bcd989?extend%5Bgroups%5D%5Bteams%5D=true
+        /// </remarks>
         private static int ParseDivisionFile(string dividionFile)
         {
             var s = File.ReadAllText(dividionFile, Encoding.UTF8);
             var all = JArray.Parse(s)[0];
 
             var sb = new StringBuilder();
-            sb.AppendLine("GroupName,ClanTag");
+            sb.AppendLine("ClanTag,Division,Group");
 
-            Log.Info($"File is from {(string)all["name"]}");
+            string fullName = (string) all["name"];
+
+            Log.Info($"File is from {fullName}");
+
+            string division = fullName;
+            if (fullName.ToLowerInvariant().Contains("west"))
+            {
+                division = "WEST";
+            }
+            else if (fullName.ToLowerInvariant().Contains("east"))
+            {
+                division = "EAST";
+            }
+            else if (fullName.ToLowerInvariant().Contains("euro"))
+            {
+                division = "EURO";
+            }
 
             var groups = (JArray)all["groups"];
             foreach (var g in groups)
@@ -62,7 +84,7 @@ namespace Negri.Wot
                     var teamName = (string) t["name"];
                     Log.Info($"Found team {teamName} on group {groupName}...");
 
-                    sb.AppendLine($"{groupName},{teamName}");
+                    sb.AppendLine($"{teamName},{division},{groupName}");
                 }
             }
 
