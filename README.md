@@ -27,11 +27,16 @@ instructions.
 
 The program may take several minutes to run, as it needs to query *a lot* of data over the Internet. So, be patient.
 
+After the program runs it outputs 2 files, on the same directory that the original was:
+
+* One with `valid.` before the original file name, containing general information about a player;
+* One with `tanks.` before the original file name, containg details on every tier X tank that each player has ever played.
+
 ## Compiling
 
 If you want to compile, just clone and open on Visual Studio (I used VS 2017, But the free edition will do it). You will be missing a small text file called `AppId.txt`. It contains the *Wargaming App Id* that you can create on their [Developer Portal](https://developers.wargaming.net/).
 
-Without this key file on the same directory of the binaries the application will run with the `demo` app id, witch is quite limited.
+Without this key file on the same directory of the binaries the application will run with the `demo` app id, witch is quite limited, or may not even work at all.
 
 ## WCL3 Fields
 
@@ -58,4 +63,5 @@ or the program can proccess a simple file, as bellow.
 ## Path Ahead
 
 * ~~Computing WN8, WinRate and Average Tier of the Players and Teams;~~
-* Exporting Excel Workbook with clean records, and information on the tanks.
+* ~~Exporting information on the tier X tanks;~~
+* Exporting an Excel Workbook with clean records, and information on the tanks.
