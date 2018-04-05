@@ -113,10 +113,7 @@ namespace Negri.Wot.Tanks
 
             sb.Append(All.DroppedCapturePoints * 1.0 / All.Battles);
             sb.Append(",");
-
-            sb.Append(All.DroppedCapturePoints * 1.0 / All.Battles);
-            sb.Append(",");
-
+            
             sb.Append(All.DamageAssisted * 1.0 / All.Battles);
             sb.Append(",");
 
@@ -125,10 +122,7 @@ namespace Negri.Wot.Tanks
 
             sb.Append(All.Hits * 1.0 / All.Battles);
             sb.Append(",");
-
-            sb.Append(All.Piercings * 1.0 / All.Battles);
-            sb.Append(",");
-
+            
             sb.Append(All.Piercings * 1.0 / All.Battles);
             sb.Append(",");
 
