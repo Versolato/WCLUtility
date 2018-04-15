@@ -11,6 +11,8 @@ namespace Negri.Wot.Api
     public class Clan
     {
         private HashSet<long> _membersIds = new HashSet<long>();
+        private Dictionary<long, Player> _players = new Dictionary<long, Player>();
+        private int _membersCount;
 
         /// <summary>
         /// Id do Clã (nunca muda)
@@ -32,7 +34,11 @@ namespace Negri.Wot.Api
         /// Numero de membros do clã
         /// </summary>
         [JsonProperty("members_count")]
-        public int MembersCount { get; set; }
+        public int MembersCount
+        {
+            get => (_players?.Count ?? 0) <= 0 ? _membersCount : _players?.Count ?? 0;
+            set => _membersCount = value;
+        }
 
         /// <summary>
         /// Data de criação do clã
@@ -61,6 +67,31 @@ namespace Negri.Wot.Api
         }
 
         /// <summary>
+        /// All battles
+        /// </summary>
+        public long AllBattles => _players?.Values.Sum(p => p.Battles) ?? 0;
+
+        /// <summary>
+        /// Tier 10 battles
+        /// </summary>
+        public long Tier10Battles => _players?.Values.Sum(p => p.Tier10Battles) ?? 0;
+
+        /// <summary>
+        /// The count of distinct Tier 10 tanks
+        /// </summary>
+        public long Tier10DistinctTanks => _players?.Values.SelectMany(p => p.Tier10Tanks).Select(t => t.TankId).Distinct().Count() ?? 0;
+
+        /// <summary>
+        /// Tier 10 Win Rate
+        /// </summary>
+        public double Tier10WinRate => _players?.Values.Sum(p => p.Tier10Battles*p.Tier10WinRate) / Tier10Battles ?? 0.0;
+
+        /// <summary>
+        /// Tier 10 WN8
+        /// </summary>
+        public double Tier10Wn8 => _players?.Values.Sum(p => p.Tier10Battles * p.Tier10Wn8) / Tier10Battles ?? 0.0;
+
+        /// <summary>
         /// Add a player id to the clan
         /// </summary>
         /// <param name="playerId"></param>
@@ -81,6 +112,30 @@ namespace Negri.Wot.Api
         public bool HasMember(long playerId)
         {
             return _membersIds != null && _membersIds.Contains(playerId);
+        }
+
+        /// <summary>
+        /// Add a player to the clan
+        /// </summary>
+        /// <param name="player"></param>
+        public void AddMember(Player player)
+        {
+            if (_membersIds == null)
+            {
+                _membersIds = new HashSet<long>();
+            }
+
+            if (_membersIds.Contains(player.Id))
+            {
+                return;
+            }
+
+            if (_players == null)
+            {
+                _players = new Dictionary<long, Player>();
+            }
+
+            _players.Add(player.Id, player);
         }
     }
 }

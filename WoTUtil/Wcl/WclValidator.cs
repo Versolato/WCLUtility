@@ -43,7 +43,7 @@ namespace Negri.Wot.Wcl
         /// <summary>
         /// The current progress
         /// </summary>
-        public double Progress { get; private set; } = 0.0;
+        public double Progress { get; private set; }
 
         /// <summary>
         /// Current status
@@ -248,6 +248,8 @@ namespace Negri.Wot.Wcl
             File.WriteAllText(newFile, sb.ToString(), Encoding.UTF8);
             SetInfo($"Validated file wrote on '{newFile}'.");
 
+            ResultFile = newFile;
+
             sb = new StringBuilder();
 
             sb.AppendLine(TankPlayer.TankHeader);
@@ -285,9 +287,75 @@ namespace Negri.Wot.Wcl
 
             var tankFile = Path.Combine(dir, $"tanks.{baseName}");
             File.WriteAllText(tankFile, sb.ToString(), Encoding.UTF8);
-            SetInfo($"Tanks files wrote on '{tankFile}'.");
+            SetInfo($"Tanks file wrote on '{tankFile}'.");
 
-            ResultFile = newFile;
+            // Build clans
+            var dic = new Dictionary<long, Clan>();
+            foreach (var r in records)
+            {
+                if (r.Player == null)
+                {
+                    continue;
+                }
+
+                if (r.ClanId == null)
+                {
+                    continue;
+                }
+
+                if (!dic.TryGetValue(r.ClanId.Value, out var c))
+                {
+                    c = new Clan
+                    {
+                        ClanId = r.ClanId.Value,
+                        Tag = r.ClanTag
+                    };
+                    dic.Add(c.ClanId, c);
+                }
+
+                c.AddMember(r.Player);
+            }
+
+            sb = new StringBuilder();
+            sb.AppendLine("ClanTag,ClanId,Division,Group,Members Count,All Battles,Tier 10 Battles,Tier 10 Distinct Tanks,Tier 10 Win Rate,Tier 10 WN8");
+
+            foreach (var c in dic.Values.OrderBy(c => c.Tag))
+            {
+                sb.Append(c.Tag.SanitizeToCsv());
+                sb.Append(",");
+
+                sb.Append(c.ClanId);
+                sb.Append(",");
+
+                // sb.Append(""); Division
+                sb.Append(",");
+
+                // sb.Append(""); Group
+                sb.Append(",");
+
+                sb.Append(c.MembersCount);
+                sb.Append(",");
+
+                sb.Append(c.AllBattles);
+                sb.Append(",");
+
+                sb.Append(c.Tier10Battles);
+                sb.Append(",");
+
+                sb.Append(c.Tier10DistinctTanks);
+                sb.Append(",");
+
+                sb.Append(c.Tier10WinRate);
+                sb.Append(",");
+
+                sb.Append(c.Tier10Wn8);
+                sb.AppendLine();
+            }
+
+            var clansFile = Path.Combine(dir, $"clans.{baseName}");
+            File.WriteAllText(clansFile, sb.ToString(), Encoding.UTF8);
+            SetInfo($"Clans file wrote on '{clansFile}'.");
+
         }
 
         private int GetPlayerIds(Record[] records, double startProgress, double finalProgress)
