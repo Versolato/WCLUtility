@@ -27,10 +27,11 @@ instructions.
 
 The program may take several minutes to run, as it needs to query *a lot* of data over the Internet. So, be patient.
 
-After the program runs it outputs 2 files, on the same directory that the original was:
+After the program runs it outputs 3 files, on the same directory that the original was:
 
 * One with `valid.` before the original file name, containing general information about a player;
-* One with `tanks.` before the original file name, containg details on every tier X tank that each player has ever played.
+* One with `tanks.` before the original file name, containg details on every tier X tank that each player has ever played;
+* One with `clans.` before the original file name, containg a summary of every team.
 
 ## Compiling
 
